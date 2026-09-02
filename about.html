@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>เกี่ยวกับ — SkillPath</title>
+<meta name="description" content="ปัญหาที่ SkillPath แก้ วิธีคำนวณความครอบคลุม ขอบเขตของข้อมูล และทีมผู้พัฒนา — Generation Thailand Hackathon 2026 โจทย์ที่ 1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bai+Jamjuree:wght@500;600;700&family=IBM+Plex+Sans+Thai:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+
+<header class="topbar" id="sitenav"></header>
+
+<div class="aboutwrap">
+  <span class="kicker" style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.09em;text-transform:uppercase;color:var(--muted)">เกี่ยวกับ SkillPath</span>
+  <h1>เอกสารหลักสูตรกับประกาศงาน พูดถึงทักษะเดียวกัน แต่เขียนคนละภาษา</h1>
+  <p class="lede">SkillPath แปลสิ่งที่คุณเรียนให้เป็นภาษาที่ตลาดงานเข้าใจ — และบอกตรง ๆ เมื่อข้อมูลไม่พอให้ฟันธง แทนที่จะให้ตัวเลขที่ดูมั่นใจเกินจริง</p>
+
+  <section class="aboutsec">
+    <h2>ปัญหา</h2>
+    <div class="body">
+      <p>นักศึกษาไม่รู้ว่าตัวเองพร้อมสำหรับตำแหน่งงานที่อยากได้แค่ไหน เพราะไม่มีอะไรเชื่อมสองฝั่งนี้เข้าหากัน — <b>หลักสูตร</b> เขียนด้วยภาษาวิชาการ ส่วน <b>ประกาศงาน</b> เขียนด้วยชื่อผลิตภัณฑ์และศัพท์เฉพาะวงการ ตัวอย่างจากหลักสูตรจริงที่เราตรวจสอบทั้ง 162 หน้า:</p>
+    </div>
+    <div class="gaptable" style="margin-top:18px">
+      <div class="gaprow head"><div class="gc">ตลาดงานเขียนว่า</div><div class="gc">หลักสูตรเขียนว่า</div><div class="gc">ผลค้นในเอกสาร</div></div>
+      <div class="gaprow"><div class="gc market"><q>ใช้ SQL ได้คล่อง</q></div><div class="gc curric">“ภาษาสอบถาม / query languages” (คพ.251)</div><div class="gc result">SQL — พบ 0 ครั้ง</div></div>
+      <div class="gaprow"><div class="gc market"><q>มีประสบการณ์ใช้ Docker</q></div><div class="gc curric">“คอนเทนเนอร์” (คพ.365)</div><div class="gc result">Docker — พบ 0 ครั้ง</div></div>
+      <div class="gaprow"><div class="gc market"><q>ใช้ Git ร่วมกับทีมได้</q></div><div class="gc curric">“การควบคุมเวอร์ชันของโค้ดด้วยกิท” (คพ.365)</div><div class="gc result">Git — พบ 1 ครั้ง</div></div>
+      <div class="gaprow"><div class="gc market"><q>เคยใช้ Spring Boot</q></div><div class="gc curric">ไม่มีวิชาสอน</div><div class="gc result">Spring — พบ 0 ครั้ง</div></div>
+    </div>
+  </section>
+
+  <section class="aboutsec">
+    <h2>สิ่งที่ SkillPath แสดง</h2>
+    <div class="body">
+      <p><b>เลือกอาชีพ → ดูความครอบคลุมของตัวเอง</b> คำนวณจากรายวิชาที่คุณเรียนจบและกำลังเรียนจริง ไม่ใช่ค่าเฉลี่ยของคนทั้งคณะ</p>
+      <p><b>กดที่ทักษะ → เห็นประกาศงานต้นทาง</b> ทุกตัวเลขในแอปกดดูที่มาได้ ไม่มีตัวเลขไหนที่ไม่มีหลักฐานอ้างอิง</p>
+      <p><b>ป้าย "เอกสารใช้คำอื่น"</b> ชี้ตำแหน่งที่หลักสูตรสอนแล้วจริง แต่ใช้คำที่ตลาดงานค้นไม่เจอ — ทักษะที่คุณมีอยู่แล้วโดยไม่รู้ตัว</p>
+      <p><b>เกณฑ์ปฏิเสธความมั่นใจปลอม</b> ตำแหน่งที่มีประกาศระดับ junior ต่ำกว่า 30 รายการ ระบบจะไม่แสดงเปอร์เซ็นต์ เพราะตัวอย่างเล็กเกินกว่าจะฟันธง (ดูตัวอย่างที่ Solutions Architect ใน <a href="app.html?role=sa" style="color:var(--accent)">หน้าสำรวจอาชีพ</a>)</p>
+      <p><b>ปุ่ม "ตรง / ไม่ตรง" ที่ทุกทักษะ</b> ทุกครั้งที่กดดูหลักฐานของทักษะ (ในหน้าสำรวจอาชีพและหลักสูตร) จะมีปุ่มให้บอกว่าการจับคู่นั้นตรงกับสิ่งที่คุณเจอจริงไหม — ปิดลูป Human-in-the-loop ที่เดโมรุ่นก่อนยังไม่มี ผลจะถูกเก็บไว้ในเครื่องคุณเท่านั้น</p>
+    </div>
+  </section>
+
+  <section class="aboutsec">
+    <h2>วิธีคำนวณความครอบคลุม</h2>
+    <div class="body">
+      <p>ทุกเปอร์เซ็นต์มาจากสูตรเดียวกัน: นับจำนวน<b>ประกาศงานระดับ junior</b>ที่ระบุแต่ละทักษะ แล้วดูว่าทักษะที่คุณ "เรียนแล้ว" หรือ "กำลังเรียน" ครอบคลุมประกาศเหล่านั้นกี่เปอร์เซ็นต์ — ถ่วงน้ำหนักด้วยความถี่ที่ตลาดต้องการจริง <b>ไม่ใช่นับจำนวนทักษะแบบเท่ากันหมด</b> ทักษะที่ตลาดขอบ่อย (เช่น Git ที่ปรากฏใน 551 จาก 1,240 ประกาศตำแหน่ง Backend) จึงมีน้ำหนักมากกว่าทักษะที่ขอนาน ๆ ครั้ง</p>
+      <p>เส้นทางในหน้า "ดูแผนของฉัน" แบ่งช่องว่างที่เหลือออกเป็นสองกลุ่มอย่างตรงไปตรงมา: ทักษะที่ปรากฏต่ำกว่า 25% ของประกาศจะไม่ถูกใส่ในแผนหลัก (ทำเพิ่มได้ถ้ามีเวลา แต่ไม่ใช่ลำดับความสำคัญ) และทักษะที่การเรียนในห้องเรียนช่วยไม่ได้เลย เช่น การสื่อสารกับ stakeholder ซึ่งต้องมาจากประสบการณ์ทำงานจริงเท่านั้น</p>
+    </div>
+  </section>
+
+  <section class="aboutsec">
+    <h2>ขอบเขตของข้อมูล</h2>
+    <div class="scopetable">
+      <div class="scoperow"><div class="sc-lbl">หลักสูตร</div><div class="sc-val"><b>เอกสารจริง</b> — รหัสวิชา ชื่อวิชา และถ้อยคำในคำอธิบายรายวิชา ยกมาจากหลักสูตรวิทยาศาสตรบัณฑิต สาขาวิชาวิทยาการคอมพิวเตอร์ (ปรับปรุง พ.ศ. 2566) คณะวิทยาศาสตร์และเทคโนโลยี มหาวิทยาลัยธรรมศาสตร์ โดยตรง ไม่ได้แต่งขึ้นหรือถอดความใหม่</div></div>
+      <div class="scoperow"><div class="sc-lbl">ประกาศงาน</div><div class="sc-val"><b>ชุดข้อมูลตัวอย่าง</b> สำหรับสาธิต UI เท่านั้น สร้างขึ้นให้สมจริงเพื่อทดสอบการออกแบบ ยังไม่ใช่ผลจากการวิเคราะห์ประกาศงานจริงในตลาด</div></div>
+      <div class="scoperow"><div class="sc-lbl">สาขาที่รองรับ</div><div class="sc-val">ตอนนี้มีเฉพาะ<b>วิทยาการคอมพิวเตอร์ มธ.</b> สาขาอื่นแสดงในหน้าตั้งค่าโปรไฟล์เป็น "เร็วๆ นี้" — ยังไม่เปิดใช้งานจนกว่าจะตรวจสอบเอกสารหลักสูตรจริงเสร็จ</div></div>
+    </div>
+  </section>
+
+  <section class="aboutsec">
+    <h2>ข้อจำกัดและทิศทางถัดไป</h2>
+    <div class="body"><p>เดโมนี้จงใจโปร่งใสเรื่องสิ่งที่ยังไม่พร้อม เพื่อไม่ให้ตัวเลขดูน่าเชื่อถือเกินสิ่งที่ข้อมูลรองรับจริง:</p></div>
+    <ul class="timeline">
+      <li><b>ประกาศงาน</b> — เชื่อมกับข้อมูลประกาศงานจริงจากหลายแหล่ง แทนชุดตัวอย่างที่ทีมสร้างขึ้นเอง</li>
+      <li><b>การจับคู่คำ</b> — ใช้โมเดลภาษาช่วยจับคู่คำพ้องความระหว่างเอกสารหลักสูตรกับประกาศงานโดยอัตโนมัติ แทนการไล่อ่านและจับคู่มือทีละคำอย่างตอนนี้</li>
+      <li><b>ขยายสาขา/มหาวิทยาลัย</b> — เพิ่มหลักสูตรจริงจากคณะและมหาวิทยาลัยอื่น หลังตรวจสอบเอกสารต้นฉบับแล้วเท่านั้น</li>
+      <li><b>ความคืบหน้ารายวิชา</b> — เชื่อมกับระบบทะเบียนของมหาวิทยาลัย แทนการให้ผู้ใช้กรอกปี/เทอมเอง</li>
+    </ul>
+  </section>
+
+  <div class="credit">
+    <div class="cr-txt">
+      <b>ทีม 4WARDERS</b>
+      <p>Generation Thailand Hackathon 2026 · โจทย์ที่ 1 — นวัตกรรม AI ที่เชื่อมโยงการศึกษาและอุตสาหกรรม</p>
+    </div>
+    <a class="cta ghost" href="app.html">ลองใช้งาน SkillPath →</a>
+  </div>
+</div>
+
+<script src="assets/data.js"></script>
+<script>renderNav("about.html");</script>
+</body>
+</html>
