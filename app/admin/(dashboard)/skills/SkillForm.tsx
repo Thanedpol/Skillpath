@@ -3,9 +3,11 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { upsertSkill } from "@/lib/actions/admin";
+import { MAJORS } from "@/lib/data";
 
-type Course = { code: string; name: string };
+type Course = { major_id: string; code: string; name: string };
 type Skill = {
+  major_id: string;
   key: string;
   code: string | null;
   note: string;
@@ -25,7 +27,9 @@ export default function SkillForm({ courses, skill }: { courses: Course[]; skill
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
+  const [majorId, setMajorId] = useState(skill?.major_id || "");
   const isEdit = !!skill;
+  const majorCourses = courses.filter((c) => c.major_id === majorId);
 
   async function action(formData: FormData) {
     setError(null);
@@ -44,6 +48,23 @@ export default function SkillForm({ courses, skill }: { courses: Course[]; skill
       <div className="admin-panel">
         <div className="admin-formgrid">
           <div className="admin-field span2">
+            <label htmlFor="major_id">สาขา (คีย์ร่วมกับชื่อทักษะ — เปลี่ยนไม่ได้หลังสร้าง)</label>
+            <select
+              id="major_id"
+              name="major_id"
+              value={majorId}
+              onChange={(e) => setMajorId(e.target.value)}
+              required
+              disabled={isEdit}
+            >
+              {!skill ? <option value="">— เลือกสาขา —</option> : null}
+              {MAJORS.map((m) => (
+                <option key={m.id} value={m.id}>{m.name}</option>
+              ))}
+            </select>
+          </div>
+
+          <div className="admin-field span2">
             <label htmlFor="key">ชื่อทักษะ (คีย์ — เปลี่ยนไม่ได้หลังสร้าง)</label>
             <input id="key" name="key" defaultValue={skill?.key} required disabled={isEdit} />
           </div>
@@ -52,7 +73,7 @@ export default function SkillForm({ courses, skill }: { courses: Course[]; skill
             <label htmlFor="code">รหัสวิชาที่สอนทักษะนี้ (ไม่บังคับ)</label>
             <select id="code" name="code" defaultValue={skill?.code || ""}>
               <option value="">— ไม่มี —</option>
-              {courses.map((c) => (
+              {majorCourses.map((c) => (
                 <option key={c.code} value={c.code}>
                   {c.code} · {c.name}
                 </option>

@@ -12,16 +12,23 @@ create table if not exists majors (
   note text
 );
 
+-- ทุกวิชาผูกกับ major_id เสมอ — รหัสวิชาซ้ำกันได้ข้ามสาขา (เช่น มีวิชา "211" ทั้งใน CS และสถิติ)
+-- primary key จึงเป็น (major_id, code) ไม่ใช่ code เดี่ยว ๆ
 create table if not exists courses (
-  code text primary key,
+  major_id text not null references majors(id) on delete cascade,
+  code text not null,
   name text not null,
   when_label text not null,
-  ord integer not null
+  ord integer not null,
+  primary key (major_id, code)
 );
 
+-- ทักษะก็ผูกกับ major_id เช่นกัน — คีย์เดียวกัน (เช่น "SQL") มีได้หลาย major
+-- โดยแต่ละ major เห็น note/code ของตัวเอง
 create table if not exists skills (
-  key text primary key,
-  code text references courses(code) on delete set null,
+  major_id text not null references majors(id) on delete cascade,
+  key text not null,
+  code text,
   note text not null,
   alias text,
   src text,
@@ -32,7 +39,9 @@ create table if not exists skills (
   proof text,
   act text,
   time_estimate text,
-  route text
+  route text,
+  primary key (major_id, key),
+  foreign key (major_id, code) references courses(major_id, code) on delete set null
 );
 
 create table if not exists roles (

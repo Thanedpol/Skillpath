@@ -5,7 +5,7 @@
    ถ่วงน้ำหนักด้วยจำนวนประกาศงานที่ระบุทักษะนั้น ไม่ใช่นับทักษะเท่ากันหมด
    ============================================================ */
 import { useCallback, useEffect, useState } from "react";
-import { COURSES, DEMAND, MAJORS, ROLES, SK, TERMS } from "./data";
+import { COURSES_BY_MAJOR, DEMAND, MAJORS, ROLES, SK_BY_MAJOR, TERMS } from "./data";
 import type { DemandPair, Profile, RouteResult, SkillResolved } from "./types";
 
 export const PROFILE_KEY = "skillpath.profile.v1";
@@ -50,10 +50,12 @@ export function majorName(id: string): string {
    ord มากกว่า = ยังไม่ถึง · ผู้ใช้ override รายวิชาเองได้
    ------------------------------------------------------------ */
 export function getSkillState(key: string, profile: Profile): SkillResolved {
-  const m = SK[key];
+  const sk = SK_BY_MAJOR[profile.major] || {};
+  const courses = COURSES_BY_MAJOR[profile.major] || {};
+  const m = sk[key];
   if (!m) return { st: "none", kind: "course", note: "ไม่มีวิชาไหนในหลักสูตรสอน" };
   if (m.kind === "work" || !m.code) return { ...m, st: "none" };
-  const c = COURSES[m.code];
+  const c = courses[m.code];
   if (!c) return { ...m, st: "none", kind: "course" };
   const ov = (profile.overrides || {})[m.code];
   let done: boolean;
@@ -80,7 +82,8 @@ export function getSkillState(key: string, profile: Profile): SkillResolved {
 }
 
 export function isCourseDone(code: string, profile: Profile): boolean {
-  const c = COURSES[code];
+  const courses = COURSES_BY_MAJOR[profile.major] || {};
+  const c = courses[code];
   if (!c) return false;
   const ov = (profile.overrides || {})[code];
   return typeof ov === "boolean" ? ov : c.ord < profile.ord;

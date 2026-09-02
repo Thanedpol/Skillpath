@@ -1,15 +1,16 @@
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import SkillForm from "../SkillForm";
+import SkillForm from "../../SkillForm";
 
-export default async function EditSkillPage({ params }: { params: Promise<{ key: string }> }) {
-  const { key } = await params;
+export default async function EditSkillPage({ params }: { params: Promise<{ majorId: string; key: string }> }) {
+  const { majorId, key } = await params;
+  const decodedMajorId = decodeURIComponent(majorId);
   const decodedKey = decodeURIComponent(key);
   const supabase = await createClient();
 
   const [{ data: courses }, { data: skill }] = await Promise.all([
-    supabase.from("courses").select("code,name").order("ord"),
-    supabase.from("skills").select("*").eq("key", decodedKey).maybeSingle(),
+    supabase.from("courses").select("major_id,code,name").order("ord"),
+    supabase.from("skills").select("*").eq("major_id", decodedMajorId).eq("key", decodedKey).maybeSingle(),
   ]);
 
   if (!skill) notFound();

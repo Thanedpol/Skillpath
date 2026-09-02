@@ -1,7 +1,7 @@
 /* One-off: generate supabase/seed.sql from the current lib/data.ts
    so the database starts out byte-identical to the static data.
    Run with: npx tsx scripts/gen-seed.ts > supabase/seed.sql */
-import { SK, COURSES, ROLES, DEMAND, MAJORS } from "../lib/data";
+import { SK_BY_MAJOR, COURSES_BY_MAJOR, ROLES, DEMAND, MAJORS } from "../lib/data";
 
 function esc(s: string | undefined | null): string {
   if (s === undefined || s === null) return "NULL";
@@ -26,34 +26,39 @@ for (const m of MAJORS) {
 lines.push("");
 
 lines.push("-- courses");
-for (const [code, c] of Object.entries(COURSES)) {
-  lines.push(
-    `insert into courses (code, name, when_label, ord) values (${esc(code)}, ${esc(c.name)}, ${esc(c.when)}, ${c.ord});`
-  );
+for (const [majorId, courses] of Object.entries(COURSES_BY_MAJOR)) {
+  for (const [code, c] of Object.entries(courses)) {
+    lines.push(
+      `insert into courses (major_id, code, name, when_label, ord) values (${esc(majorId)}, ${esc(code)}, ${esc(c.name)}, ${esc(c.when)}, ${c.ord});`
+    );
+  }
 }
 lines.push("");
 
 lines.push("-- skills");
-for (const [key, m] of Object.entries(SK)) {
-  lines.push(
-    `insert into skills (key, code, note, alias, src, hidden, early_in_term, partial, kind, proof, act, time_estimate, route) values (` +
-      [
-        esc(key),
-        esc(m.code),
-        esc(m.note),
-        esc(m.alias),
-        esc(m.src),
-        bool(m.hidden),
-        bool(m.earlyInTerm),
-        bool(m.partial),
-        esc(m.kind),
-        esc(m.proof),
-        esc(m.act),
-        esc(m.time),
-        esc(m.route),
-      ].join(", ") +
-      ");"
-  );
+for (const [majorId, sk] of Object.entries(SK_BY_MAJOR)) {
+  for (const [key, m] of Object.entries(sk)) {
+    lines.push(
+      `insert into skills (major_id, key, code, note, alias, src, hidden, early_in_term, partial, kind, proof, act, time_estimate, route) values (` +
+        [
+          esc(majorId),
+          esc(key),
+          esc(m.code),
+          esc(m.note),
+          esc(m.alias),
+          esc(m.src),
+          bool(m.hidden),
+          bool(m.earlyInTerm),
+          bool(m.partial),
+          esc(m.kind),
+          esc(m.proof),
+          esc(m.act),
+          esc(m.time),
+          esc(m.route),
+        ].join(", ") +
+        ");"
+    );
+  }
 }
 lines.push("");
 

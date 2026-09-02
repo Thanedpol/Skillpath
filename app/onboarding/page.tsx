@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Nav from "@/components/Nav";
-import { COURSES, MAJORS, MIN_POSTS, ROLES, TERMS, skillsForCourse } from "@/lib/data";
+import { COURSES_BY_MAJOR, MAJORS, MIN_POSTS, ROLES, TERMS, skillsForCourse } from "@/lib/data";
 import { DEFAULT_PROFILE, loadProfile, roleCoverage, saveProfile } from "@/lib/profile";
 import type { Course, Profile } from "@/lib/types";
 
@@ -42,9 +42,10 @@ export default function OnboardingPage() {
     }, 700);
   }
 
-  /* ---------- step 3: courses grouped by term ord ---------- */
+  /* ---------- step 3: courses grouped by term ord (ตามสาขาที่เลือก) ---------- */
+  const majorCourses = COURSES_BY_MAJOR[draft.major] || {};
   const byOrd: Record<number, [string, Course][]> = {};
-  Object.entries(COURSES).forEach(([code, c]) => {
+  Object.entries(majorCourses).forEach(([code, c]) => {
     (byOrd[c.ord] = byOrd[c.ord] || []).push([code, c]);
   });
 
@@ -76,7 +77,7 @@ export default function OnboardingPage() {
               <span className="eyebrow">ขั้นตอน 1 จาก 4</span>
               <h2>คุณเรียนสาขาอะไร</h2>
               <p>
-                ตอนนี้ SkillPath มีข้อมูลหลักสูตรจริงพร้อมใช้เฉพาะวิทยาการคอมพิวเตอร์ มธ. สาขาอื่นกำลังอยู่ระหว่างจัดทำ —
+                ตอนนี้ SkillPath มีข้อมูลหลักสูตรจริงพร้อมใช้ 2 คณะ — วิทยาการคอมพิวเตอร์ และสถิติ (2 วิชาเอก) สาขาอื่นกำลังอยู่ระหว่างจัดทำ —
                 เลือกไว้ก่อนได้ ระบบจะแจ้งเมื่อพร้อม
               </p>
             </div>
@@ -88,7 +89,7 @@ export default function OnboardingPage() {
                   className={`choice${m.ready ? "" : " soon"}`}
                   aria-pressed={m.id === draft.major}
                   disabled={!m.ready}
-                  onClick={() => setDraft((d) => ({ ...d, major: m.id }))}
+                  onClick={() => setDraft((d) => (d.major === m.id ? d : { ...d, major: m.id, overrides: {} }))}
                 >
                   <span className="cname">
                     {m.name}
@@ -195,7 +196,7 @@ export default function OnboardingPage() {
                     {t.ord === draft.ord ? " — เทอมปัจจุบันของคุณ" : ""}
                   </div>
                   {byOrd[t.ord].map(([code, c]) => {
-                    const skills = skillsForCourse(code);
+                    const skills = skillsForCourse(draft.major, code);
                     const checked =
                       typeof draft.overrides[code] === "boolean" ? draft.overrides[code] : c.ord < draft.ord;
                     return (

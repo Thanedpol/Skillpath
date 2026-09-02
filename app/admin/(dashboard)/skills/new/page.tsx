@@ -3,7 +3,7 @@ import SkillForm from "../SkillForm";
 
 export default async function NewSkillPage() {
   const supabase = await createClient();
-  const { data: courses } = await supabase.from("courses").select("code,name").order("ord");
+  const { data: courses } = await supabase.from("courses").select("major_id,code,name").order("ord");
 
   return (
     <>

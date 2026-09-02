@@ -6,7 +6,7 @@ import { useSearchParams } from "next/navigation";
 import Nav from "@/components/Nav";
 import Drawer from "@/components/Drawer";
 import TrustPanel from "@/components/TrustPanel";
-import { COURSES, DEMAND, MIN_POSTS, POSTS, ROLES, SK, STATE, postKeyFor, tally } from "@/lib/data";
+import { COURSES_BY_MAJOR, DEMAND, MAJORS, MIN_POSTS, POSTS, ROLES, SK_BY_MAJOR, STATE, postKeyFor, tally } from "@/lib/data";
 import { getSkillState, roleCoverage, route as computeRoute, useProfile } from "@/lib/profile";
 import type { DemandPair, Profile, SkillResolved } from "@/lib/types";
 
@@ -14,16 +14,18 @@ type Level = "jr" | "sr";
 type Sort = "fit" | "dem";
 type DrawerState = { skill: string; n: number; denom: number; roleName: string } | null;
 
-function courseGroups(pairs: DemandPair[]) {
+function courseGroups(pairs: DemandPair[], major: string) {
+  const sk = SK_BY_MAJOR[major] || {};
+  const courses = COURSES_BY_MAJOR[major] || {};
   const g: Record<string, { code: string; skills: DemandPair[]; n: number }> = {};
   pairs.forEach(([k, n]) => {
-    const code = SK[k]?.code || "__";
+    const code = sk[k]?.code || "__";
     if (!g[code]) g[code] = { code, skills: [], n: 0 };
     g[code].skills.push([k, n]);
     g[code].n += n;
   });
   return Object.values(g).sort(
-    (a, b) => (COURSES[a.code]?.ord ?? 99) - (COURSES[b.code]?.ord ?? 99) || b.n - a.n
+    (a, b) => (courses[a.code]?.ord ?? 99) - (courses[b.code]?.ord ?? 99) || b.n - a.n
   );
 }
 
@@ -33,7 +35,8 @@ function CourseBlock({ group, tone, profile, onOpen }: {
   profile: Profile;
   onOpen: (k: string, n: number) => void;
 }) {
-  const c = COURSES[group.code] || { name: "นอกหลักสูตร", when: "", ord: 0 };
+  const courses = COURSES_BY_MAJOR[profile.major] || {};
+  const c = courses[group.code] || { name: "นอกหลักสูตร", when: "", ord: 0 };
   return (
     <div className={`crow ${tone}`}>
       <div className="ctop">
@@ -123,6 +126,8 @@ function ExploreInner() {
     : [];
 
   const R = role ? computeRoute(role.id, profile) : null;
+  const curriMajor = MAJORS.find((m) => m.id === profile.major);
+  const curriMajorLabel = curriMajor ? `${curriMajor.name} (ปรับปรุง 2566) ${curriMajor.school}` : "หลักสูตร วท.บ. วิทยาการคอมพิวเตอร์ (ปรับปรุง 2566) มธ.";
 
   return (
     <>
@@ -149,7 +154,7 @@ function ExploreInner() {
                   </span>
                   <br />
                   <span className="op2">
-                    ฝั่งหลักสูตร = เอกสารจริง (วท.บ. วิทยาการคอมพิวเตอร์ ปรับปรุง 2566 มธ.) · ฝั่งประกาศงาน =
+                    ฝั่งหลักสูตร = เอกสารจริง ({curriMajorLabel}) · ฝั่งประกาศงาน =
                     ชุดข้อมูลตัวอย่างสำหรับสาธิต UI
                   </span>
                 </div>
@@ -329,8 +334,7 @@ function ExploreInner() {
                     )}
 
                     <p className="foot">
-                      <b>ฝั่งหลักสูตร = เอกสารจริง</b> — หลักสูตร วท.บ. วิทยาการคอมพิวเตอร์ (ปรับปรุง พ.ศ. 2566)
-                      คณะวิทยาศาสตร์และเทคโนโลยี มหาวิทยาลัยธรรมศาสตร์ · รหัสวิชา ชื่อวิชา และถ้อยคำในคำอธิบายรายวิชา
+                      <b>ฝั่งหลักสูตร = เอกสารจริง</b> — หลักสูตร {curriMajorLabel} · รหัสวิชา ชื่อวิชา และถ้อยคำในคำอธิบายรายวิชา
                       ยกมาจากเอกสารต้นฉบับ ไม่ได้แต่งขึ้น
                       <br />
                       <b>ฝั่งประกาศงาน = ชุดข้อมูลตัวอย่าง</b> สำหรับสาธิต UI เท่านั้น ยังไม่ใช่ผลจากการวิเคราะห์ประกาศงานจริง
@@ -360,8 +364,7 @@ function ExploreInner() {
           )}
 
           <p className="foot">
-            <b>ฝั่งหลักสูตร = เอกสารจริง</b> — หลักสูตร วท.บ. วิทยาการคอมพิวเตอร์ (ปรับปรุง พ.ศ. 2566)
-            คณะวิทยาศาสตร์และเทคโนโลยี มหาวิทยาลัยธรรมศาสตร์ · รหัสวิชา ชื่อวิชา และถ้อยคำในคำอธิบายรายวิชา
+            <b>ฝั่งหลักสูตร = เอกสารจริง</b> — หลักสูตร {curriMajorLabel} · รหัสวิชา ชื่อวิชา และถ้อยคำในคำอธิบายรายวิชา
             ยกมาจากเอกสารต้นฉบับ ไม่ได้แต่งขึ้น
             <br />
             <b>ฝั่งประกาศงาน = ชุดข้อมูลตัวอย่าง</b> สำหรับสาธิต UI เท่านั้น ยังไม่ใช่ผลจากการวิเคราะห์ประกาศงานจริง
@@ -375,16 +378,16 @@ function ExploreInner() {
         title={drawer?.skill ?? ""}
         subtitle={drawer ? `${drawer.n} จาก ${drawer.denom} ประกาศ · ${Math.round((drawer.n / drawer.denom) * 100)}% · ${drawer.roleName}` : ""}
       >
-        {drawer ? <DrawerBody skill={drawer.skill} n={drawer.n} /> : null}
+        {drawer ? <DrawerBody skill={drawer.skill} n={drawer.n} major={profile.major} /> : null}
       </Drawer>
     </>
   );
 }
 
-function DrawerBody({ skill, n }: { skill: string; n: number }) {
+function DrawerBody({ skill, n, major }: { skill: string; n: number; major: string }) {
   const key = postKeyFor(skill);
   const posts = key ? POSTS[key] : null;
-  const m = SK[skill];
+  const m = (SK_BY_MAJOR[major] || {})[skill];
 
   return (
     <>
@@ -439,9 +442,10 @@ function PlanBody({ role, R, profile, onOpen }: {
     next: P.done + P.now + P.next,
     out: P.done + P.now + P.next + P.out,
   };
-  const doneG = courseGroups(R.done);
-  const nowG = courseGroups(R.now);
-  const nextG = courseGroups(R.next);
+  const majorCourses = COURSES_BY_MAJOR[profile.major] || {};
+  const doneG = courseGroups(R.done, profile.major);
+  const nowG = courseGroups(R.now, profile.major);
+  const nextG = courseGroups(R.next, profile.major);
 
   return (
     <>
@@ -517,7 +521,7 @@ function PlanBody({ role, R, profile, onOpen }: {
               : "ไม่มีวิชาในหลักสูตรที่ปิดช่องว่างของตำแหน่งนี้ได้ — ข้ามไปสองกลุ่มถัดไป"}
           </p>
           {nextG.slice(0, 4).map((g) => {
-            const c = COURSES[g.code];
+            const c = majorCourses[g.code];
             const top = g.skills[0];
             return (
               <div className="item" key={g.code}>
@@ -549,7 +553,7 @@ function PlanBody({ role, R, profile, onOpen }: {
             {R.out.length ? "ไม่มีวิชาไหนสอน แต่ยังปิดได้ก่อนจบ ถ้าลงมือทำเอง" : "ไม่มีทักษะนอกหลักสูตรที่ปรากฏถึง 25% ของประกาศ"}
           </p>
           {R.out.map(([k, n]) => {
-            const m = SK[k];
+            const m = getSkillState(k, profile);
             return (
               <div className="item alert" key={k}>
                 <div className="itemtop">
@@ -612,7 +616,7 @@ function PlanBody({ role, R, profile, onOpen }: {
             )}
           </p>
           {R.stuck.map(([k, n]) => {
-            const m = SK[k];
+            const m = getSkillState(k, profile);
             return (
               <div className="item hard" key={k}>
                 <div className="itemtop">

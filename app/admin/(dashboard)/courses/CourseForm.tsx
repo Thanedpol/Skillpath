@@ -3,8 +3,9 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { upsertCourse } from "@/lib/actions/admin";
+import { MAJORS } from "@/lib/data";
 
-type Course = { code: string; name: string; when_label: string; ord: number };
+type Course = { major_id: string; code: string; name: string; when_label: string; ord: number };
 
 export default function CourseForm({ course }: { course?: Course }) {
   const router = useRouter();
@@ -28,6 +29,16 @@ export default function CourseForm({ course }: { course?: Course }) {
     <form action={action}>
       <div className="admin-panel">
         <div className="admin-formgrid">
+          <div className="admin-field span2">
+            <label htmlFor="major_id">สาขา (คีย์ร่วมกับรหัสวิชา — เปลี่ยนไม่ได้หลังสร้าง)</label>
+            <select id="major_id" name="major_id" defaultValue={course?.major_id} required disabled={isEdit}>
+              {!course ? <option value="">— เลือกสาขา —</option> : null}
+              {MAJORS.map((m) => (
+                <option key={m.id} value={m.id}>{m.name}</option>
+              ))}
+            </select>
+          </div>
+
           <div className="admin-field span2">
             <label htmlFor="code">รหัสวิชา (คีย์ — เปลี่ยนไม่ได้หลังสร้าง)</label>
             <input id="code" name="code" defaultValue={course?.code} required disabled={isEdit} />

@@ -1,17 +1,17 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Nav from "@/components/Nav";
 import Drawer from "@/components/Drawer";
 import TrustPanel from "@/components/TrustPanel";
-import { COURSES, POSTS, SK, STATE, demandFor, postKeyFor, skillsForCourse } from "@/lib/data";
+import { COURSES_BY_MAJOR, MAJORS, POSTS, SK_BY_MAJOR, STATE, demandFor, postKeyFor, skillsForCourse } from "@/lib/data";
 import { getSkillState, useProfile } from "@/lib/profile";
 import type { Course, Profile, SkillResolved } from "@/lib/types";
 
-/* ---------- course list, grouped by year (static — no profile dependency) ---------- */
-function courseYearGroups(): { year: string; courses: [string, Course][] }[] {
+/* ---------- course list, grouped by year ---------- */
+function courseYearGroups(major: string): { year: string; courses: [string, Course][] }[] {
   const byYear: Record<string, [string, Course][]> = {};
-  Object.entries(COURSES).forEach(([code, c]) => {
+  Object.entries(COURSES_BY_MAJOR[major] || {}).forEach(([code, c]) => {
     const y = c.when.split(" · ")[0];
     (byYear[y] = byYear[y] || []).push([code, c]);
   });
@@ -103,15 +103,28 @@ function CurriculumDrawerBody({ skill, profile }: { skill: string; profile: Prof
 }
 
 export default function CurriculumPage() {
-  const { profile } = useProfile();
+  const { profile, ready } = useProfile();
   const [drawerSkill, setDrawerSkill] = useState<string | null>(null);
+  const [selectedMajor, setSelectedMajor] = useState<string>("cs-tu");
+  const readyMajors = MAJORS.filter((m) => m.ready);
+
+  useEffect(() => {
+    if (ready) setSelectedMajor(profile.major);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [ready]);
+
+  /* ---------- ดูสถานะทักษะ "ราวกับ" กำลังเรียนสาขาที่เลือกอยู่ตอนนี้ — ปี/เทอมยังใช้ของโปรไฟล์จริง
+     (encoding ord เป็นมาตรฐานเดียวกันทุกสาขา จึงเทียบข้ามสาขาได้อย่างมีความหมาย) ---- */
+  const effProfile: Profile = { ...profile, major: selectedMajor };
+  const majorMeta = MAJORS.find((m) => m.id === selectedMajor);
+  const majorSK = SK_BY_MAJOR[selectedMajor] || {};
 
   /* ---------- top stats ---------- */
-  const total = Object.keys(COURSES).length;
-  const mapped = Object.values(SK).filter((m) => m.code).length;
-  const hiddenN = Object.values(SK).filter((m) => m.hidden).length;
+  const total = Object.keys(COURSES_BY_MAJOR[selectedMajor] || {}).length;
+  const mapped = Object.values(majorSK).filter((m) => m.code).length;
+  const hiddenN = Object.values(majorSK).filter((m) => m.hidden).length;
 
-  const yearGroups = courseYearGroups();
+  const yearGroups = courseYearGroups(selectedMajor);
 
   return (
     <>
@@ -119,7 +132,16 @@ export default function CurriculumPage() {
 
       <div className="curriwrap">
         <div className="curriintro">
-          <h1>หลักสูตร วท.บ. วิทยาการคอมพิวเตอร์ (ปรับปรุง 2566) — ทีละวิชา</h1>
+          {readyMajors.length > 1 ? (
+            <div className="seg" role="group" aria-label="เลือกสาขา" style={{ marginBottom: 16 }}>
+              {readyMajors.map((m) => (
+                <button key={m.id} type="button" aria-pressed={m.id === selectedMajor} onClick={() => setSelectedMajor(m.id)}>
+                  {m.name}
+                </button>
+              ))}
+            </div>
+          ) : null}
+          <h1>หลักสูตร {majorMeta?.name ?? ""} (ปรับปรุง 2566) — ทีละวิชา</h1>
           <p>
             หน้านี้ยกระดับสิ่งที่ SkillPath พบระดับ &quot;รายอาชีพ&quot; มาดูทั้งหลักสูตรพร้อมกัน — ทุกวิชาสอนอะไรที่ตลาดงานต้องการบ้าง
             วิชาไหนสอนแล้วแต่เอกสารใช้คำที่ตลาดค้นไม่เจอ และวิชาไหนยังไม่ถูกจับคู่กับทักษะใดเลยในชุดข้อมูลตัวอย่างของเรา
@@ -148,7 +170,7 @@ export default function CurriculumPage() {
             <div className="yeargroup" key={year}>
               <span className="seclbl">{year}</span>
               {courses.map(([code, c]) => {
-                const skills = skillsForCourse(code);
+                const skills = skillsForCourse(selectedMajor, code);
                 return (
                   <div className="coursecard" key={code}>
                     <div className="cctop">
@@ -159,7 +181,7 @@ export default function CurriculumPage() {
                     {skills.length ? (
                       <div className="ccskills">
                         {skills.map((k) => {
-                          const m = getSkillState(k, profile);
+                          const m = getSkillState(k, effProfile);
                           const d = demandFor(k);
                           return (
                             <button className="ccskillchip" type="button" key={k} onClick={() => setDrawerSkill(k)}>
@@ -182,8 +204,9 @@ export default function CurriculumPage() {
         </div>
 
         <p className="foot" style={{ marginTop: 40 }}>
-          <b>ฝั่งหลักสูตร = เอกสารจริง</b> — รหัสวิชา ชื่อวิชา และลำดับปี/เทอม ยกมาจากหลักสูตร วท.บ. วิทยาการคอมพิวเตอร์
-          (ปรับปรุง พ.ศ. 2566) คณะวิทยาศาสตร์และเทคโนโลยี มหาวิทยาลัยธรรมศาสตร์ โดยตรง
+          <b>ฝั่งหลักสูตร = เอกสารจริง</b> — รหัสวิชา ชื่อวิชา และลำดับปี/เทอม ยกมาจากหลักสูตร {majorMeta?.name ?? ""}
+          (ปรับปรุง พ.ศ. 2566) {majorMeta?.school ?? "คณะวิทยาศาสตร์และเทคโนโลยี มหาวิทยาลัยธรรมศาสตร์"} โดยตรง
+          {majorMeta?.note ? <><br />{majorMeta.note}</> : null}
           <br />
           <b>ทักษะที่จับคู่ไว้ = ชุดตัวอย่างของทีมสำหรับสาธิต UI</b> — วิชาจริงอาจครอบคลุมทักษะมากกว่าที่แสดงในเดโมนี้
           ยังไม่ใช่ผลจากการประมวลผลคำอธิบายรายวิชาแบบอัตโนมัติ
@@ -196,7 +219,7 @@ export default function CurriculumPage() {
         title={drawerSkill ?? ""}
         subtitle={drawerSkill ? subtitleFor(drawerSkill) : ""}
       >
-        {drawerSkill ? <CurriculumDrawerBody skill={drawerSkill} profile={profile} /> : null}
+        {drawerSkill ? <CurriculumDrawerBody skill={drawerSkill} profile={effProfile} /> : null}
       </Drawer>
     </>
   );

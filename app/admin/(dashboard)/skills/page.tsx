@@ -1,11 +1,12 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { deleteSkill } from "@/lib/actions/admin";
+import { MAJORS } from "@/lib/data";
 import DeleteButton from "../DeleteButton";
 
 export default async function AdminSkillsPage() {
   const supabase = await createClient();
-  const { data: skills } = await supabase.from("skills").select("*").order("key");
+  const { data: skills } = await supabase.from("skills").select("*").order("major_id").order("key");
 
   return (
     <>
@@ -23,6 +24,7 @@ export default async function AdminSkillsPage() {
         <table className="admin-table">
           <thead>
             <tr>
+              <th>สาขา</th>
               <th>ทักษะ</th>
               <th>วิชา</th>
               <th>สถานะ</th>
@@ -33,13 +35,14 @@ export default async function AdminSkillsPage() {
           <tbody>
             {!skills?.length ? (
               <tr>
-                <td colSpan={5} className="admin-empty">
+                <td colSpan={6} className="admin-empty">
                   ยังไม่มีข้อมูล
                 </td>
               </tr>
             ) : (
               skills.map((s) => (
-                <tr key={s.key}>
+                <tr key={`${s.major_id}/${s.key}`}>
+                  <td>{MAJORS.find((m) => m.id === s.major_id)?.name ?? s.major_id}</td>
                   <td>
                     <b>{s.key}</b>
                     {s.note ? <div style={{ fontSize: 11.5, color: "var(--muted)", marginTop: 3 }}>{s.note}</div> : null}
@@ -53,10 +56,16 @@ export default async function AdminSkillsPage() {
                   <td>{s.kind === "work" ? "ต้องได้จากงานจริง" : s.kind === "course" ? "ไม่มีวิชาสอน" : "—"}</td>
                   <td>
                     <div className="admin-actions">
-                      <Link href={`/admin/skills/${encodeURIComponent(s.key)}`} className="admin-btn">
+                      <Link
+                        href={`/admin/skills/${encodeURIComponent(s.major_id)}/${encodeURIComponent(s.key)}`}
+                        className="admin-btn"
+                      >
                         แก้ไข
                       </Link>
-                      <DeleteButton action={deleteSkill.bind(null, s.key)} confirmText={`ลบทักษะ "${s.key}" ใช่ไหม?`} />
+                      <DeleteButton
+                        action={deleteSkill.bind(null, s.major_id, s.key)}
+                        confirmText={`ลบทักษะ "${s.key}" ใช่ไหม?`}
+                      />
                     </div>
                   </td>
                 </tr>

@@ -53,6 +53,7 @@ export async function upsertCourse(formData: FormData) {
   await assertAdmin();
   const admin = createAdminClient();
   const { error } = await admin.from("courses").upsert({
+    major_id: str(formData, "major_id"),
     code: str(formData, "code"),
     name: str(formData, "name"),
     when_label: str(formData, "when_label"),
@@ -61,10 +62,10 @@ export async function upsertCourse(formData: FormData) {
   if (error) throw new Error(error.message);
   revalidatePath("/admin/courses");
 }
-export async function deleteCourse(code: string) {
+export async function deleteCourse(majorId: string, code: string) {
   await assertAdmin();
   const admin = createAdminClient();
-  const { error } = await admin.from("courses").delete().eq("code", code);
+  const { error } = await admin.from("courses").delete().eq("major_id", majorId).eq("code", code);
   if (error) throw new Error(error.message);
   revalidatePath("/admin/courses");
 }
@@ -75,6 +76,7 @@ export async function upsertSkill(formData: FormData) {
   const admin = createAdminClient();
   const kind = str(formData, "kind");
   const { error } = await admin.from("skills").upsert({
+    major_id: str(formData, "major_id"),
     key: str(formData, "key"),
     code: strOrNull(formData, "code"),
     note: str(formData, "note"),
@@ -92,10 +94,10 @@ export async function upsertSkill(formData: FormData) {
   if (error) throw new Error(error.message);
   revalidatePath("/admin/skills");
 }
-export async function deleteSkill(key: string) {
+export async function deleteSkill(majorId: string, key: string) {
   await assertAdmin();
   const admin = createAdminClient();
-  const { error } = await admin.from("skills").delete().eq("key", key);
+  const { error } = await admin.from("skills").delete().eq("major_id", majorId).eq("key", key);
   if (error) throw new Error(error.message);
   revalidatePath("/admin/skills");
 }

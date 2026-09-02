@@ -1,18 +1,19 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { deleteCourse } from "@/lib/actions/admin";
+import { MAJORS } from "@/lib/data";
 import DeleteButton from "../DeleteButton";
 
 export default async function AdminCoursesPage() {
   const supabase = await createClient();
-  const { data: courses } = await supabase.from("courses").select("*").order("ord");
+  const { data: courses } = await supabase.from("courses").select("*").order("major_id").order("ord");
 
   return (
     <>
       <div className="admin-head">
         <div>
           <h1>รายวิชา</h1>
-          <p>รายวิชาทั้งหมดที่ใช้ผูกกับทักษะ — เรียงตามปี/เทอม</p>
+          <p>รายวิชาทั้งหมดที่ใช้ผูกกับทักษะ — เรียงตามสาขา แล้วตามปี/เทอม</p>
         </div>
         <Link href="/admin/courses/new" className="cta">
           + เพิ่มรายวิชาใหม่
@@ -23,6 +24,7 @@ export default async function AdminCoursesPage() {
         <table className="admin-table">
           <thead>
             <tr>
+              <th>สาขา</th>
               <th>รหัสวิชา</th>
               <th>ชื่อวิชา</th>
               <th>ช่วงเวลา</th>
@@ -33,23 +35,30 @@ export default async function AdminCoursesPage() {
           <tbody>
             {!courses?.length ? (
               <tr>
-                <td colSpan={5} className="admin-empty">
+                <td colSpan={6} className="admin-empty">
                   ยังไม่มีข้อมูล
                 </td>
               </tr>
             ) : (
               courses.map((c) => (
-                <tr key={c.code}>
+                <tr key={`${c.major_id}/${c.code}`}>
+                  <td>{MAJORS.find((m) => m.id === c.major_id)?.name ?? c.major_id}</td>
                   <td className="mono">{c.code}</td>
                   <td>{c.name}</td>
                   <td>{c.when_label}</td>
                   <td className="num">{c.ord}</td>
                   <td>
                     <div className="admin-actions">
-                      <Link href={`/admin/courses/${encodeURIComponent(c.code)}`} className="admin-btn">
+                      <Link
+                        href={`/admin/courses/${encodeURIComponent(c.major_id)}/${encodeURIComponent(c.code)}`}
+                        className="admin-btn"
+                      >
                         แก้ไข
                       </Link>
-                      <DeleteButton action={deleteCourse.bind(null, c.code)} confirmText={`ลบรายวิชา "${c.code}" ใช่ไหม?`} />
+                      <DeleteButton
+                        action={deleteCourse.bind(null, c.major_id, c.code)}
+                        confirmText={`ลบรายวิชา "${c.code}" ใช่ไหม?`}
+                      />
                     </div>
                   </td>
                 </tr>
