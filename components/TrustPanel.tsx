@@ -3,8 +3,8 @@
 import Link from "next/link";
 import { useFeedback } from "@/lib/feedback";
 
-export default function TrustPanel({ skillKey }: { skillKey: string }) {
-  const { vote, castVote } = useFeedback(skillKey);
+export default function TrustPanel({ skillKey, page }: { skillKey: string; page?: string }) {
+  const { vote, castVote } = useFeedback(skillKey, page);
 
   return (
     <div className="trustpanel">
@@ -24,7 +24,7 @@ export default function TrustPanel({ skillKey }: { skillKey: string }) {
         </div>
       </div>
       {vote ? (
-        <p className="tp-thanks">บันทึกฟีดแบ็กแล้ว — เก็บไว้ในเครื่องคุณเท่านั้น ใช้ปรับปรุงการจับคู่ในเวอร์ชันถัดไป</p>
+        <p className="tp-thanks">บันทึกฟีดแบ็กแล้ว — ส่งให้ทีมงานดูภาพรวมได้ (ไม่ผูกกับตัวตนคุณ) ใช้ปรับปรุงการจับคู่ในเวอร์ชันถัดไป</p>
       ) : null}
     </div>
   );

@@ -97,7 +97,7 @@ function CurriculumDrawerBody({ skill, profile }: { skill: string; profile: Prof
           </div>
         </>
       )}
-      <TrustPanel skillKey={skill} />
+      <TrustPanel skillKey={skill} page="curriculum" />
     </>
   );
 }

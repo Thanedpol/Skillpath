@@ -421,7 +421,7 @@ function DrawerBody({ skill, n }: { skill: string; n: number }) {
           </div>
         </>
       )}
-      <TrustPanel skillKey={skill} />
+      <TrustPanel skillKey={skill} page="explore" />
     </>
   );
 }
