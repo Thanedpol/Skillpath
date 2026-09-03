@@ -6,7 +6,7 @@ import { useSearchParams } from "next/navigation";
 import Nav from "@/components/Nav";
 import Drawer from "@/components/Drawer";
 import TrustPanel from "@/components/TrustPanel";
-import { COURSES_BY_MAJOR, DEMAND, MAJORS, MIN_POSTS, POSTS, ROLES, SK_BY_MAJOR, STATE, postKeyFor, tally } from "@/lib/data";
+import { COURSES_BY_MAJOR, DEMAND, MAJORS, MIN_POSTS, POSTS, ROLES, SK_BY_MAJOR, STATE, postKeyFor, schoolLabel, tally } from "@/lib/data";
 import { getSkillState, roleCoverage, route as computeRoute, useProfile } from "@/lib/profile";
 import type { DemandPair, Profile, SkillResolved } from "@/lib/types";
 
@@ -127,7 +127,9 @@ function ExploreInner() {
 
   const R = role ? computeRoute(role.id, profile) : null;
   const curriMajor = MAJORS.find((m) => m.id === profile.major);
-  const curriMajorLabel = curriMajor ? `${curriMajor.name} (ปรับปรุง 2566) ${curriMajor.school}` : "หลักสูตร วท.บ. วิทยาการคอมพิวเตอร์ (ปรับปรุง 2566) มธ.";
+  const curriMajorLabel = curriMajor
+    ? `${curriMajor.name} (ปรับปรุง 2566) ${schoolLabel(curriMajor.id)}`
+    : "หลักสูตร วท.บ. วิทยาการคอมพิวเตอร์ (ปรับปรุง 2566) มธ.";
 
   return (
     <>

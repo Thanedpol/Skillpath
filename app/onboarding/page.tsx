@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Nav from "@/components/Nav";
-import { COURSES_BY_MAJOR, MAJORS, MIN_POSTS, ROLES, TERMS, skillsForCourse } from "@/lib/data";
+import { COURSES_BY_MAJOR, MAJORS, MIN_POSTS, ROLES, TERMS, schoolLabel, skillsForCourse } from "@/lib/data";
 import { DEFAULT_PROFILE, loadProfile, roleCoverage, saveProfile } from "@/lib/profile";
 import type { Course, Profile } from "@/lib/types";
 
@@ -96,7 +96,7 @@ export default function OnboardingPage() {
                     {!m.ready && <span className="soonchip">เร็วๆ นี้</span>}
                   </span>
                   <span className="cnote">
-                    {m.school}
+                    {schoolLabel(m.id)}
                     {m.note ? ` — ${m.note}` : ""}
                   </span>
                 </button>
@@ -249,7 +249,7 @@ export default function OnboardingPage() {
                     <div className="sc-val">
                       <b>{summaryMajor.name}</b>
                       <br />
-                      {summaryMajor.school}
+                      {schoolLabel(summaryMajor.id)}
                     </div>
                   </div>
                   <div className="scoperow">

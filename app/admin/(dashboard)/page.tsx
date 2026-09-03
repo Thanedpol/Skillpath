@@ -1,10 +1,12 @@
 import Link from "next/link";
 import { eq } from "drizzle-orm";
 import { db } from "@/lib/db";
-import { courses as coursesT, demand as demandT, feedback as feedbackT, majors as majorsT, roles as rolesT, skills as skillsT } from "@/lib/db/schema";
+import { courses as coursesT, demand as demandT, faculties as facultiesT, feedback as feedbackT, majors as majorsT, roles as rolesT, skills as skillsT, universities as universitiesT } from "@/lib/db/schema";
 
 export default async function AdminHomePage() {
-  const [majors, courses, skills, roles, demand, feedback, feedbackUp] = await Promise.all([
+  const [universities, faculties, majors, courses, skills, roles, demand, feedback, feedbackUp] = await Promise.all([
+    db.$count(universitiesT),
+    db.$count(facultiesT),
     db.$count(majorsT),
     db.$count(coursesT),
     db.$count(skillsT),
@@ -24,6 +26,14 @@ export default async function AdminHomePage() {
       </div>
 
       <div className="admin-cards">
+        <Link href="/admin/universities" className="admin-card" style={{ textDecoration: "none", color: "inherit" }}>
+          <div className="n">{universities}</div>
+          <div className="l">มหาวิทยาลัย</div>
+        </Link>
+        <Link href="/admin/faculties" className="admin-card" style={{ textDecoration: "none", color: "inherit" }}>
+          <div className="n">{faculties}</div>
+          <div className="l">คณะ</div>
+        </Link>
         <Link href="/admin/majors" className="admin-card" style={{ textDecoration: "none", color: "inherit" }}>
           <div className="n">{majors}</div>
           <div className="l">สาขา</div>

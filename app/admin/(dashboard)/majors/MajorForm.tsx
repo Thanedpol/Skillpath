@@ -7,12 +7,13 @@ import { upsertMajor } from "@/lib/actions/admin";
 type Major = {
   id: string;
   name: string;
-  school: string;
+  faculty_id: string;
   ready: boolean;
   note: string | null;
 };
+type FacultyOption = { id: string; label: string };
 
-export default function MajorForm({ major }: { major?: Major }) {
+export default function MajorForm({ faculties, major }: { faculties: FacultyOption[]; major?: Major }) {
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
@@ -45,8 +46,15 @@ export default function MajorForm({ major }: { major?: Major }) {
           </div>
 
           <div className="admin-field">
-            <label htmlFor="school">คณะ / มหาวิทยาลัย</label>
-            <input id="school" name="school" defaultValue={major?.school} required />
+            <label htmlFor="faculty_id">คณะ</label>
+            <select id="faculty_id" name="faculty_id" defaultValue={major?.faculty_id} required>
+              {!major ? <option value="">— เลือกคณะ —</option> : null}
+              {faculties.map((f) => (
+                <option key={f.id} value={f.id}>
+                  {f.label}
+                </option>
+              ))}
+            </select>
           </div>
 
           <div className="admin-field span2">

@@ -6,9 +6,9 @@ config({ path: ".env.local" });
 
 import { neon } from "@neondatabase/serverless";
 import { drizzle } from "drizzle-orm/neon-http";
-import { courses, demand, feedback, majors, roles, skills } from "../lib/db/schema";
+import { courses, demand, faculties, feedback, majors, roles, skills, universities } from "../lib/db/schema";
 import * as schema from "../lib/db/schema";
-import { COURSES_BY_MAJOR, DEMAND, MAJORS, ROLES, SK_BY_MAJOR } from "../lib/data";
+import { COURSES_BY_MAJOR, DEMAND, FACULTIES, MAJORS, ROLES, SK_BY_MAJOR, UNIVERSITIES } from "../lib/data";
 
 // standalone connection — lib/db/index.ts imports "server-only", which
 // throws unconditionally outside Next.js's bundler, so this script can't use it
@@ -22,9 +22,19 @@ async function main() {
   await db.delete(courses);
   await db.delete(roles);
   await db.delete(majors);
+  await db.delete(faculties);
+  await db.delete(universities);
+
+  await db.insert(universities).values(
+    UNIVERSITIES.map((u) => ({ id: u.id, name: u.name, short_name: u.shortName }))
+  );
+
+  await db.insert(faculties).values(
+    FACULTIES.map((f) => ({ id: f.id, university_id: f.universityId, name: f.name, campus: f.campus ?? null }))
+  );
 
   await db.insert(majors).values(
-    MAJORS.map((m) => ({ id: m.id, name: m.name, school: m.school, ready: m.ready, note: m.note ?? null }))
+    MAJORS.map((m) => ({ id: m.id, faculty_id: m.facultyId, name: m.name, ready: m.ready, note: m.note ?? null }))
   );
 
   const courseRows = Object.entries(COURSES_BY_MAJOR).flatMap(([major_id, cs]) =>
@@ -62,6 +72,8 @@ async function main() {
   if (demandRows.length) await db.insert(demand).values(demandRows);
 
   console.log("Seeded:", {
+    universities: UNIVERSITIES.length,
+    faculties: FACULTIES.length,
     majors: MAJORS.length,
     courses: courseRows.length,
     skills: skillRows.length,

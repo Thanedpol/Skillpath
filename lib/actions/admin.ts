@@ -4,7 +4,7 @@ import { and, eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { auth } from "@/auth";
 import { db } from "@/lib/db";
-import { courses, demand, majors, roles, skills } from "@/lib/db/schema";
+import { courses, demand, faculties, majors, roles, skills, universities } from "@/lib/db/schema";
 
 async function assertAdmin() {
   const session = await auth();
@@ -25,13 +25,48 @@ function bool(fd: FormData, key: string): boolean {
   return fd.get(key) === "on" || fd.get(key) === "true";
 }
 
+/* ---------------- universities ---------------- */
+export async function upsertUniversity(formData: FormData) {
+  await assertAdmin();
+  const row = {
+    id: str(formData, "id"),
+    name: str(formData, "name"),
+    short_name: str(formData, "short_name"),
+  };
+  await db.insert(universities).values(row).onConflictDoUpdate({ target: universities.id, set: row });
+  revalidatePath("/admin/universities");
+}
+export async function deleteUniversity(id: string) {
+  await assertAdmin();
+  await db.delete(universities).where(eq(universities.id, id));
+  revalidatePath("/admin/universities");
+}
+
+/* ---------------- faculties ---------------- */
+export async function upsertFaculty(formData: FormData) {
+  await assertAdmin();
+  const row = {
+    id: str(formData, "id"),
+    university_id: str(formData, "university_id"),
+    name: str(formData, "name"),
+    campus: strOrNull(formData, "campus"),
+  };
+  await db.insert(faculties).values(row).onConflictDoUpdate({ target: faculties.id, set: row });
+  revalidatePath("/admin/faculties");
+}
+export async function deleteFaculty(id: string) {
+  await assertAdmin();
+  await db.delete(faculties).where(eq(faculties.id, id));
+  revalidatePath("/admin/faculties");
+}
+
 /* ---------------- majors ---------------- */
 export async function upsertMajor(formData: FormData) {
   await assertAdmin();
   const row = {
     id: str(formData, "id"),
+    faculty_id: str(formData, "faculty_id"),
     name: str(formData, "name"),
-    school: str(formData, "school"),
     ready: bool(formData, "ready"),
     note: strOrNull(formData, "note"),
   };

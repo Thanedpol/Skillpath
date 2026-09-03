@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import Nav from "@/components/Nav";
 import Drawer from "@/components/Drawer";
 import TrustPanel from "@/components/TrustPanel";
-import { COURSES_BY_MAJOR, MAJORS, POSTS, SK_BY_MAJOR, STATE, demandFor, postKeyFor, skillsForCourse } from "@/lib/data";
+import { COURSES_BY_MAJOR, MAJORS, POSTS, SK_BY_MAJOR, STATE, demandFor, postKeyFor, schoolLabel, skillsForCourse } from "@/lib/data";
 import { getSkillState, useProfile } from "@/lib/profile";
 import type { Course, Profile, SkillResolved } from "@/lib/types";
 
@@ -205,7 +205,7 @@ export default function CurriculumPage() {
 
         <p className="foot" style={{ marginTop: 40 }}>
           <b>ฝั่งหลักสูตร = เอกสารจริง</b> — รหัสวิชา ชื่อวิชา และลำดับปี/เทอม ยกมาจากหลักสูตร {majorMeta?.name ?? ""}
-          (ปรับปรุง พ.ศ. 2566) {majorMeta?.school ?? "คณะวิทยาศาสตร์และเทคโนโลยี มหาวิทยาลัยธรรมศาสตร์"} โดยตรง
+          (ปรับปรุง พ.ศ. 2566) {schoolLabel(selectedMajor)} โดยตรง
           {majorMeta?.note ? <><br />{majorMeta.note}</> : null}
           <br />
           <b>ทักษะที่จับคู่ไว้ = ชุดตัวอย่างของทีมสำหรับสาธิต UI</b> — วิชาจริงอาจครอบคลุมทักษะมากกว่าที่แสดงในเดโมนี้

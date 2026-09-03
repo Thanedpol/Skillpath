@@ -58,10 +58,26 @@ export interface Post {
   q: string;
 }
 
+export interface University {
+  id: string;
+  name: string;
+  shortName: string;
+}
+
+export interface Faculty {
+  id: string;
+  universityId: string;
+  name: string;
+  campus?: string;
+}
+
+/* school ไม่ได้เก็บเป็นข้อความในสาขาอีกต่อไป — ประกอบขึ้นจาก
+   คณะ + มหาวิทยาลัย ด้วย schoolLabel() ใน lib/data.ts เพื่อไม่ให้
+   สาขาที่อยู่คณะเดียวกันเขียนชื่อคณะไม่ตรงกันอย่างที่เคยเป็น */
 export interface Major {
   id: string;
   name: string;
-  school: string;
+  facultyId: string;
   ready: boolean;
   note?: string;
 }

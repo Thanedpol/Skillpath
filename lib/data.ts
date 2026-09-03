@@ -5,7 +5,7 @@
    คณะวิทยาศาสตร์และเทคโนโลยี มหาวิทยาลัยธรรมศาสตร์)
    ประกาศงาน = ชุดข้อมูลตัวอย่างสำหรับสาธิต UI เท่านั้น
    ============================================================ */
-import type { SkillMeta, Course, Term, Role, DemandLevels, Post, Major, Research } from "./types";
+import type { SkillMeta, Course, Term, Role, DemandLevels, Post, Major, Faculty, University, Research } from "./types";
 
 /* ---- เรียนแล้ว (อ้างอิงหลักสูตร วท.บ. วิทยาการคอมพิวเตอร์ มธ. ปรับปรุง 2566) ---- */
 export const SK_CS: Record<string, SkillMeta> = {
@@ -412,20 +412,49 @@ export function postKeyFor(skill: string): string | null {
 }
 
 /* ============================================================
+   ลำดับชั้นสถาบัน — มหาวิทยาลัย → คณะ → สาขา
+   เดิมเก็บ "คณะ + มหาวิทยาลัย" เป็นข้อความก้อนเดียวในแต่ละสาขา ทำให้สาขาที่อยู่
+   คณะเดียวกันเขียนไม่ตรงกัน (บางอันมี "ศูนย์รังสิต" บางอันไม่มี บางอันไม่ระบุ
+   มหาวิทยาลัยเลย) แยกเป็นตารางของตัวเองแล้วชื่อจึงมาจากแหล่งเดียว
+   ============================================================ */
+export const UNIVERSITIES: University[] = [
+  { id: "tu", name: "มหาวิทยาลัยธรรมศาสตร์", shortName: "มธ." }
+];
+
+export const FACULTIES: Faculty[] = [
+  { id: "sci-tu", universityId: "tu", name: "คณะวิทยาศาสตร์และเทคโนโลยี", campus: "ศูนย์รังสิต" },
+  { id: "eng-tu", universityId: "tu", name: "คณะวิศวกรรมศาสตร์", campus: "ศูนย์รังสิต" }
+];
+
+/* ============================================================
    MAJORS — วิทยาการคอมพิวเตอร์ และสถิติ (2 วิชาเอก) มีข้อมูลจริงรองรับ
    สาขาอื่นแสดงเป็น "เร็วๆ นี้" เพื่อให้เห็นทิศทางของแพลตฟอร์ม
    โดยไม่ใส่ข้อมูลที่ยังไม่ได้ตรวจสอบ
    ============================================================ */
 export const MAJORS: Major[] = [
-  { id: "cs-tu", name: "วิทยาการคอมพิวเตอร์", school: "คณะวิทยาศาสตร์และเทคโนโลยี มธ.", ready: true,
+  { id: "cs-tu", name: "วิทยาการคอมพิวเตอร์", facultyId: "sci-tu", ready: true,
     note: "หลักสูตรปรับปรุง พ.ศ. 2566 · ข้อมูลรายวิชาอ้างอิงเอกสารจริง" },
-  { id: "stat-sci-tu", name: "สถิติ — วิชาเอกสถิติศาสตร์", school: "คณะวิทยาศาสตร์และเทคโนโลยี มธ. ศูนย์รังสิต", ready: true,
+  { id: "stat-sci-tu", name: "สถิติ — วิชาเอกสถิติศาสตร์", facultyId: "sci-tu", ready: true,
     note: "หลักสูตรปรับปรุง พ.ศ. 2566 · โครงการภาคปกติ · บางวิชาเลือกไม่มีเทอมกำกับตายตัวในแผน จึงประมาณจากวิชาบังคับก่อน — ระบุไว้ในหน้ารายวิชา" },
-  { id: "stat-da-tu", name: "สถิติ — วิชาเอกวิทยาการวิเคราะห์ข้อมูล", school: "คณะวิทยาศาสตร์และเทคโนโลยี มธ. ศูนย์รังสิต", ready: true,
+  { id: "stat-da-tu", name: "สถิติ — วิชาเอกวิทยาการวิเคราะห์ข้อมูล", facultyId: "sci-tu", ready: true,
     note: "หลักสูตรปรับปรุง พ.ศ. 2566 · โครงการภาคพิเศษ · บางวิชาเลือกไม่มีเทอมกำกับตายตัวในแผน จึงประมาณจากวิชาบังคับก่อน — ระบุไว้ในหน้ารายวิชา" },
-  { id: "it-tu", name: "เทคโนโลยีสารสนเทศ", school: "คณะวิทยาศาสตร์และเทคโนโลยี มธ.", ready: false },
-  { id: "ce", name: "วิศวกรรมคอมพิวเตอร์", school: "คณะวิศวกรรมศาสตร์", ready: false }
+  { id: "it-tu", name: "เทคโนโลยีสารสนเทศ", facultyId: "sci-tu", ready: false },
+  { id: "ce", name: "วิศวกรรมคอมพิวเตอร์", facultyId: "eng-tu", ready: false }
 ];
+
+/* ---- ชื่อคณะ/มหาวิทยาลัยสำหรับแสดงผล ประกอบจากแหล่งเดียว ---- */
+export function facultyLabel(facultyId: string): string {
+  const f = FACULTIES.find((x) => x.id === facultyId);
+  if (!f) return "";
+  const u = UNIVERSITIES.find((x) => x.id === f.universityId);
+  return [f.name, u?.shortName, f.campus].filter(Boolean).join(" ");
+}
+
+/* ใช้แทน major.school เดิม — "คณะวิทยาศาสตร์และเทคโนโลยี มธ. ศูนย์รังสิต" */
+export function schoolLabel(majorId: string): string {
+  const m = MAJORS.find((x) => x.id === majorId);
+  return m ? facultyLabel(m.facultyId) : "";
+}
 
 /* ---- ทุกหน้าที่ต้องดูข้อมูลรายวิชา/ทักษะของผู้ใช้ ต้องผ่าน 2 container นี้เท่านั้น
    ห้ามอ้าง SK_CS/COURSES_CS ฯลฯ ตรงๆ นอกไฟล์นี้ — ให้ major เป็นตัวกำหนดว่าใช้ชุดข้อมูลไหน ---- */

@@ -1,6 +1,9 @@
 import MajorForm from "../MajorForm";
+import { getFacultyOptions } from "../facultyOptions";
 
-export default function NewMajorPage() {
+export default async function NewMajorPage() {
+  const faculties = await getFacultyOptions();
+
   return (
     <>
       <div className="admin-head">
@@ -8,7 +11,7 @@ export default function NewMajorPage() {
           <h1>เพิ่มสาขาใหม่</h1>
         </div>
       </div>
-      <MajorForm />
+      <MajorForm faculties={faculties} />
     </>
   );
 }

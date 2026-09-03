@@ -8,10 +8,25 @@
 import { boolean, check, foreignKey, integer, pgTable, primaryKey, text, timestamp, uniqueIndex } from "drizzle-orm/pg-core";
 import { sql } from "drizzle-orm";
 
-export const majors = pgTable("majors", {
+/* ลำดับชั้น: universities → faculties → majors → courses → skills
+   ชื่อคณะ/มหาวิทยาลัยมาจากแหล่งเดียว ไม่ใช่ข้อความซ้ำในทุกสาขาแบบเดิม */
+export const universities = pgTable("universities", {
   id: text("id").primaryKey(),
   name: text("name").notNull(),
-  school: text("school").notNull(),
+  short_name: text("short_name").notNull(),
+});
+
+export const faculties = pgTable("faculties", {
+  id: text("id").primaryKey(),
+  university_id: text("university_id").notNull().references(() => universities.id, { onDelete: "cascade" }),
+  name: text("name").notNull(),
+  campus: text("campus"),
+});
+
+export const majors = pgTable("majors", {
+  id: text("id").primaryKey(),
+  faculty_id: text("faculty_id").notNull().references(() => faculties.id, { onDelete: "cascade" }),
+  name: text("name").notNull(),
   ready: boolean("ready").notNull().default(false),
   note: text("note"),
 });
