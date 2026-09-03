@@ -1,11 +1,12 @@
 import Link from "next/link";
-import { createClient } from "@/lib/supabase/server";
+import { asc } from "drizzle-orm";
+import { db } from "@/lib/db";
+import { majors as majorsT } from "@/lib/db/schema";
 import { deleteMajor } from "@/lib/actions/admin";
 import DeleteButton from "../DeleteButton";
 
 export default async function AdminMajorsPage() {
-  const supabase = await createClient();
-  const { data: majors } = await supabase.from("majors").select("*").order("name");
+  const majors = await db.select().from(majorsT).orderBy(asc(majorsT.name));
 
   return (
     <>

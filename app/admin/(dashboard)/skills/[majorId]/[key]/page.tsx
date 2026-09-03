@@ -1,16 +1,24 @@
 import { notFound } from "next/navigation";
-import { createClient } from "@/lib/supabase/server";
+import { and, asc, eq } from "drizzle-orm";
+import { db } from "@/lib/db";
+import { courses as coursesT, skills as skillsT } from "@/lib/db/schema";
 import SkillForm from "../../SkillForm";
 
 export default async function EditSkillPage({ params }: { params: Promise<{ majorId: string; key: string }> }) {
   const { majorId, key } = await params;
   const decodedMajorId = decodeURIComponent(majorId);
   const decodedKey = decodeURIComponent(key);
-  const supabase = await createClient();
 
-  const [{ data: courses }, { data: skill }] = await Promise.all([
-    supabase.from("courses").select("major_id,code,name").order("ord"),
-    supabase.from("skills").select("*").eq("major_id", decodedMajorId).eq("key", decodedKey).maybeSingle(),
+  const [courses, skill] = await Promise.all([
+    db
+      .select({ major_id: coursesT.major_id, code: coursesT.code, name: coursesT.name })
+      .from(coursesT)
+      .orderBy(asc(coursesT.ord)),
+    db
+      .select()
+      .from(skillsT)
+      .where(and(eq(skillsT.major_id, decodedMajorId), eq(skillsT.key, decodedKey)))
+      .then((r) => r[0]),
   ]);
 
   if (!skill) notFound();

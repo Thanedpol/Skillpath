@@ -1,15 +1,14 @@
 "use server";
 
+import { and, eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
-import { createClient } from "@/lib/supabase/server";
-import { createAdminClient } from "@/lib/supabase/admin";
+import { auth } from "@/auth";
+import { db } from "@/lib/db";
+import { courses, demand, majors, roles, skills } from "@/lib/db/schema";
 
 async function assertAdmin() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) throw new Error("ไม่ได้เข้าสู่ระบบ — กรุณาเข้าสู่ระบบใหม่");
+  const session = await auth();
+  if (!session?.user) throw new Error("ไม่ได้เข้าสู่ระบบ — กรุณาเข้าสู่ระบบใหม่");
 }
 
 function str(fd: FormData, key: string): string {
@@ -29,53 +28,49 @@ function bool(fd: FormData, key: string): boolean {
 /* ---------------- majors ---------------- */
 export async function upsertMajor(formData: FormData) {
   await assertAdmin();
-  const admin = createAdminClient();
-  const { error } = await admin.from("majors").upsert({
+  const row = {
     id: str(formData, "id"),
     name: str(formData, "name"),
     school: str(formData, "school"),
     ready: bool(formData, "ready"),
     note: strOrNull(formData, "note"),
-  });
-  if (error) throw new Error(error.message);
+  };
+  await db.insert(majors).values(row).onConflictDoUpdate({ target: majors.id, set: row });
   revalidatePath("/admin/majors");
 }
 export async function deleteMajor(id: string) {
   await assertAdmin();
-  const admin = createAdminClient();
-  const { error } = await admin.from("majors").delete().eq("id", id);
-  if (error) throw new Error(error.message);
+  await db.delete(majors).where(eq(majors.id, id));
   revalidatePath("/admin/majors");
 }
 
 /* ---------------- courses ---------------- */
 export async function upsertCourse(formData: FormData) {
   await assertAdmin();
-  const admin = createAdminClient();
-  const { error } = await admin.from("courses").upsert({
+  const row = {
     major_id: str(formData, "major_id"),
     code: str(formData, "code"),
     name: str(formData, "name"),
     when_label: str(formData, "when_label"),
     ord: num(formData, "ord"),
-  });
-  if (error) throw new Error(error.message);
+  };
+  await db
+    .insert(courses)
+    .values(row)
+    .onConflictDoUpdate({ target: [courses.major_id, courses.code], set: row });
   revalidatePath("/admin/courses");
 }
 export async function deleteCourse(majorId: string, code: string) {
   await assertAdmin();
-  const admin = createAdminClient();
-  const { error } = await admin.from("courses").delete().eq("major_id", majorId).eq("code", code);
-  if (error) throw new Error(error.message);
+  await db.delete(courses).where(and(eq(courses.major_id, majorId), eq(courses.code, code)));
   revalidatePath("/admin/courses");
 }
 
 /* ---------------- skills ---------------- */
 export async function upsertSkill(formData: FormData) {
   await assertAdmin();
-  const admin = createAdminClient();
   const kind = str(formData, "kind");
-  const { error } = await admin.from("skills").upsert({
+  const row = {
     major_id: str(formData, "major_id"),
     key: str(formData, "key"),
     code: strOrNull(formData, "code"),
@@ -90,64 +85,63 @@ export async function upsertSkill(formData: FormData) {
     act: strOrNull(formData, "act"),
     time_estimate: strOrNull(formData, "time_estimate"),
     route: strOrNull(formData, "route"),
-  });
-  if (error) throw new Error(error.message);
+  };
+  await db
+    .insert(skills)
+    .values(row)
+    .onConflictDoUpdate({ target: [skills.major_id, skills.key], set: row });
   revalidatePath("/admin/skills");
 }
 export async function deleteSkill(majorId: string, key: string) {
   await assertAdmin();
-  const admin = createAdminClient();
-  const { error } = await admin.from("skills").delete().eq("major_id", majorId).eq("key", key);
-  if (error) throw new Error(error.message);
+  await db.delete(skills).where(and(eq(skills.major_id, majorId), eq(skills.key, key)));
   revalidatePath("/admin/skills");
 }
 
 /* ---------------- roles ---------------- */
 export async function upsertRole(formData: FormData) {
   await assertAdmin();
-  const admin = createAdminClient();
-  const { error } = await admin.from("roles").upsert({
+  const row = {
     id: str(formData, "id"),
     name: str(formData, "name"),
     posts: num(formData, "posts"),
     jr_posts: num(formData, "jr_posts"),
     fit: num(formData, "fit"),
-  });
-  if (error) throw new Error(error.message);
+  };
+  await db.insert(roles).values(row).onConflictDoUpdate({ target: roles.id, set: row });
   revalidatePath("/admin/roles");
 }
 export async function deleteRole(id: string) {
   await assertAdmin();
-  const admin = createAdminClient();
-  const { error } = await admin.from("roles").delete().eq("id", id);
-  if (error) throw new Error(error.message);
+  await db.delete(roles).where(eq(roles.id, id));
   revalidatePath("/admin/roles");
 }
 
 /* ---------------- demand ---------------- */
 export async function upsertDemand(formData: FormData) {
   await assertAdmin();
-  const admin = createAdminClient();
   const idRaw = str(formData, "id");
+  const levelRaw = str(formData, "level");
+  if (levelRaw !== "jr" && levelRaw !== "sr") throw new Error('ระดับต้องเป็น "jr" หรือ "sr"');
+  const level = levelRaw as "jr" | "sr";
   const row = {
     role_id: str(formData, "role_id"),
-    level: str(formData, "level"),
+    level,
     skill_key: str(formData, "skill_key"),
     count: num(formData, "count"),
   };
   if (idRaw) {
-    const { error } = await admin.from("demand").update(row).eq("id", Number(idRaw));
-    if (error) throw new Error(error.message);
+    await db.update(demand).set(row).where(eq(demand.id, Number(idRaw)));
   } else {
-    const { error } = await admin.from("demand").upsert(row, { onConflict: "role_id,level,skill_key" });
-    if (error) throw new Error(error.message);
+    await db
+      .insert(demand)
+      .values(row)
+      .onConflictDoUpdate({ target: [demand.role_id, demand.level, demand.skill_key], set: row });
   }
   revalidatePath("/admin/roles");
 }
 export async function deleteDemand(id: number) {
   await assertAdmin();
-  const admin = createAdminClient();
-  const { error } = await admin.from("demand").delete().eq("id", id);
-  if (error) throw new Error(error.message);
+  await db.delete(demand).where(eq(demand.id, id));
   revalidatePath("/admin/roles");
 }

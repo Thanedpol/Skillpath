@@ -1,30 +1,28 @@
-import { createClient } from "@/lib/supabase/server";
+import { desc, eq } from "drizzle-orm";
+import { db } from "@/lib/db";
+import { feedback as feedbackT } from "@/lib/db/schema";
 
 type FeedbackRow = {
   skill_key: string;
   vote: string;
   page: string | null;
-  created_at: string;
+  created_at: Date;
 };
 
 export default async function AdminFeedbackPage() {
-  const supabase = await createClient();
+  const [total, up, down, allVotes, recent] = await Promise.all([
+    db.$count(feedbackT),
+    db.$count(feedbackT, eq(feedbackT.vote, "up")),
+    db.$count(feedbackT, eq(feedbackT.vote, "down")),
+    db.select({ skill_key: feedbackT.skill_key, vote: feedbackT.vote }).from(feedbackT),
+    db
+      .select({ skill_key: feedbackT.skill_key, vote: feedbackT.vote, page: feedbackT.page, created_at: feedbackT.created_at })
+      .from(feedbackT)
+      .orderBy(desc(feedbackT.created_at))
+      .limit(20),
+  ]);
 
-  const [{ count: total }, { count: up }, { count: down }, { data: allVotes }, { data: recent }] =
-    await Promise.all([
-      supabase.from("feedback").select("*", { count: "exact", head: true }),
-      supabase.from("feedback").select("*", { count: "exact", head: true }).eq("vote", "up"),
-      supabase.from("feedback").select("*", { count: "exact", head: true }).eq("vote", "down"),
-      supabase.from("feedback").select("skill_key, vote"),
-      supabase
-        .from("feedback")
-        .select("skill_key, vote, page, created_at")
-        .order("created_at", { ascending: false })
-        .limit(20),
-    ]);
-
-  // Supabase's JS client has no SQL-level GROUP BY, so aggregate per-skill
-  // totals here in JS — fine at hackathon-demo scale.
+  // aggregated in JS rather than SQL GROUP BY — fine at hackathon-demo scale
   const bySkill = new Map<string, { up: number; down: number }>();
   for (const row of allVotes ?? []) {
     const entry = bySkill.get(row.skill_key) ?? { up: 0, down: 0 };
@@ -129,7 +127,7 @@ export default async function AdminFeedbackPage() {
                   </td>
                   <td>{r.page || "—"}</td>
                   <td className="mono">
-                    {new Date(r.created_at).toLocaleString("th-TH", { dateStyle: "medium", timeStyle: "short" })}
+                    {r.created_at.toLocaleString("th-TH", { dateStyle: "medium", timeStyle: "short" })}
                   </td>
                 </tr>
               ))

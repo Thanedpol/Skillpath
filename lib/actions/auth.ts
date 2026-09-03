@@ -1,24 +1,24 @@
 "use server";
 
 import { redirect } from "next/navigation";
-import { createClient } from "@/lib/supabase/server";
+import { AuthError } from "next-auth";
+import { signIn as authSignIn, signOut as authSignOut } from "@/auth";
 
 export async function signIn(formData: FormData) {
   const email = String(formData.get("email") || "");
   const password = String(formData.get("password") || "");
   const next = String(formData.get("next") || "/admin");
 
-  const supabase = await createClient();
-  const { error } = await supabase.auth.signInWithPassword({ email, password });
-
-  if (error) {
-    redirect(`/admin/login?error=${encodeURIComponent(error.message)}&next=${encodeURIComponent(next)}`);
+  try {
+    await authSignIn("credentials", { email, password, redirectTo: next });
+  } catch (error) {
+    if (error instanceof AuthError) {
+      redirect(`/admin/login?error=${encodeURIComponent("อีเมลหรือรหัสผ่านไม่ถูกต้อง")}&next=${encodeURIComponent(next)}`);
+    }
+    throw error; // NEXT_REDIRECT on success (and any real error) must propagate
   }
-  redirect(next);
 }
 
 export async function signOut() {
-  const supabase = await createClient();
-  await supabase.auth.signOut();
-  redirect("/admin/login");
+  await authSignOut({ redirectTo: "/admin/login" });
 }

@@ -1,18 +1,15 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
-import { createClient } from "@/lib/supabase/server";
+import { auth } from "@/auth";
 import { signOut } from "@/lib/actions/auth";
 import AdminNavLinks from "./AdminNavLinks";
 
 export default async function AdminDashboardLayout({ children }: { children: React.ReactNode }) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const session = await auth();
 
-  // belt-and-suspenders — middleware already gates this, but a Server
+  // belt-and-suspenders — proxy.ts already gates this, but a Server
   // Component render is the trustworthy place to actually check
-  if (!user) redirect("/admin/login");
+  if (!session?.user) redirect("/admin/login");
 
   return (
     <div className="admin-shell">
@@ -22,7 +19,7 @@ export default async function AdminDashboardLayout({ children }: { children: Rea
         </Link>
         <AdminNavLinks />
         <div className="signout">
-          <div style={{ fontSize: 11.5, color: "var(--muted)", padding: "0 12px 6px" }}>{user.email}</div>
+          <div style={{ fontSize: 11.5, color: "var(--muted)", padding: "0 12px 6px" }}>{session.user.email}</div>
           <form action={signOut}>
             <button type="submit">ออกจากระบบ</button>
           </form>

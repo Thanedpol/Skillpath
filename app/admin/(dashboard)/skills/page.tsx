@@ -1,12 +1,13 @@
 import Link from "next/link";
-import { createClient } from "@/lib/supabase/server";
+import { asc } from "drizzle-orm";
+import { db } from "@/lib/db";
+import { skills as skillsT } from "@/lib/db/schema";
 import { deleteSkill } from "@/lib/actions/admin";
 import { MAJORS } from "@/lib/data";
 import DeleteButton from "../DeleteButton";
 
 export default async function AdminSkillsPage() {
-  const supabase = await createClient();
-  const { data: skills } = await supabase.from("skills").select("*").order("major_id").order("key");
+  const skills = await db.select().from(skillsT).orderBy(asc(skillsT.major_id), asc(skillsT.key));
 
   return (
     <>

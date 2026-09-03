@@ -1,13 +1,13 @@
 "use client";
 /* ============================================================
    feedback — "การจับคู่นี้แม่นไหม" ต่อทักษะ
-   เก็บในเครื่องผู้ใช้ (ให้ UI ตอบสนองทันที) + ส่งขึ้น Supabase แบบ
-   best-effort เพื่อให้ทีมเห็นภาพรวมทั้งหมดในหน้า /admin/feedback —
-   ถ้ายังไม่ตั้งค่า Supabase หรือเน็ตหลุด จะ fail เงียบ ๆ ไม่กระทบ UI
+   เก็บในเครื่องผู้ใช้ (ให้ UI ตอบสนองทันที) + ส่งขึ้น Neon ผ่าน Server
+   Action แบบ best-effort เพื่อให้ทีมเห็นภาพรวมทั้งหมดในหน้า /admin/feedback —
+   ถ้ายังไม่ตั้งค่า DB หรือเน็ตหลุด จะ fail เงียบ ๆ ไม่กระทบ UI
    ปิดลูป Human-in-the-loop ที่ deck ระบุไว้
    ============================================================ */
 import { useCallback, useEffect, useState } from "react";
-import { createClient } from "./supabase/client";
+import { submitFeedback } from "./actions/feedback";
 
 export const FEEDBACK_KEY = "skillpath.feedback.v1";
 export const CLIENT_ID_KEY = "skillpath.clientId.v1";
@@ -42,18 +42,12 @@ export function saveFeedbackVote(skillKey: string, value: FeedbackVote, page?: s
   all[skillKey] = value;
   localStorage.setItem(FEEDBACK_KEY, JSON.stringify(all));
 
-  try {
-    const supabase = createClient();
-    supabase
-      .from("feedback")
-      .insert({ skill_key: skillKey, vote: value, client_id: getClientId(), page: page || null })
-      .then(
-        () => {},
-        () => {}
-      );
-  } catch {
-    // Supabase env vars not configured yet, or offline — localStorage already saved above
-  }
+  submitFeedback(skillKey, value, getClientId(), page).then(
+    () => {},
+    () => {
+      // DB not configured yet, or offline — localStorage already saved above
+    }
+  );
 }
 
 export function getFeedbackVote(skillKey: string): FeedbackVote | null {

@@ -1,11 +1,12 @@
 import Link from "next/link";
-import { createClient } from "@/lib/supabase/server";
+import { asc } from "drizzle-orm";
+import { db } from "@/lib/db";
+import { roles as rolesT } from "@/lib/db/schema";
 import { deleteRole } from "@/lib/actions/admin";
 import DeleteButton from "../DeleteButton";
 
 export default async function AdminRolesPage() {
-  const supabase = await createClient();
-  const { data: roles } = await supabase.from("roles").select("*").order("fit");
+  const roles = await db.select().from(rolesT).orderBy(asc(rolesT.fit));
 
   return (
     <>

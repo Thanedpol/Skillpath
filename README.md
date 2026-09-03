@@ -19,7 +19,7 @@
 ### ฟีเจอร์เน้นนักศึกษา (สังเคราะห์จาก `SkillPath_PitchDeck_1.pdf`)
 
 - **เป้าหมายอาชีพในโปรไฟล์** — onboarding ถามว่าอยากทำงานอะไร แล้ว `/explore` เปิดตำแหน่งนั้นเป็นค่าเริ่มต้น พร้อมป้าย "เป้าหมายของคุณ"
-- **แผงความน่าเชื่อถือ + ฟีดแบ็ก** (`components/TrustPanel.tsx`) — ทุกทักษะที่กดดูหลักฐานมีคำอธิบายวิธีจับคู่ข้อมูล และปุ่ม "ตรง / ไม่ตรง" ให้ผู้ใช้ยืนยัน เก็บทั้ง localStorage (ตอบสนอง UI ทันที) และส่งขึ้น Supabase แบบ best-effort ให้ทีมดูภาพรวมได้ที่ `/admin/feedback` — ปิดลูป Human-in-the-loop ที่ deck ระบุไว้
+- **แผงความน่าเชื่อถือ + ฟีดแบ็ก** (`components/TrustPanel.tsx`) — ทุกทักษะที่กดดูหลักฐานมีคำอธิบายวิธีจับคู่ข้อมูล และปุ่ม "ตรง / ไม่ตรง" ให้ผู้ใช้ยืนยัน เก็บทั้ง localStorage (ตอบสนอง UI ทันที) และส่งขึ้น Neon แบบ best-effort ให้ทีมดูภาพรวมได้ที่ `/admin/feedback` — ปิดลูป Human-in-the-loop ที่ deck ระบุไว้
 - **งานวิจัยผู้ใช้บนหน้าแรก** — สถิติสัมภาษณ์นักศึกษา 13 คน (70% ไม่มั่นใจ) และเรื่องราวของ "เนเน่" — อยู่ใน `RESEARCH` constant ของ `lib/data.ts`
 
 ## โครงสร้างไฟล์
@@ -41,31 +41,35 @@ lib/
   types.ts              type definitions ที่ใช้ร่วมกัน
   data.ts                ข้อมูลจริงทั้งหมด (SK, COURSES, ROLES, DEMAND, POSTS, MAJORS, RESEARCH)
   profile.ts              เอนจินคำนวณโปรไฟล์ + useProfile() hook
-  feedback.ts              ระบบเก็บโหวตฟีดแบ็ก (localStorage + Supabase) + useFeedback() hook
-  supabase/                client.ts (browser), server.ts (session-aware, RLS), admin.ts (service-role, bypass RLS)
-  actions/                 Server Actions: auth.ts (เข้า/ออกระบบ), admin.ts (CRUD ของทุก resource)
+  feedback.ts              ระบบเก็บโหวตฟีดแบ็ก (localStorage + Server Action) + useFeedback() hook
+  db/                       schema.ts (Drizzle schema), index.ts (Neon client, server-only)
+  actions/                 Server Actions: auth.ts (เข้า/ออกระบบ), admin.ts (CRUD ของทุก resource), feedback.ts (โหวตสาธารณะ)
 app/admin/
-  login/page.tsx           เข้าสู่ระบบผู้ดูแล (Supabase Auth)
+  login/page.tsx           เข้าสู่ระบบผู้ดูแล (Auth.js)
   (dashboard)/              หน้าที่ต้องล็อกอิน — sidebar + ภาพรวม + CRUD: สาขา/รายวิชา/ทักษะ/อาชีพ+ความต้องการ/ฟีดแบ็ก
-supabase/
-  schema.sql               รัน 1 ครั้งใน Supabase SQL Editor ก่อนใช้งาน
-  seed.sql                  ข้อมูลตั้งต้น สร้างจาก lib/data.ts จริง (npx tsx scripts/gen-seed.ts)
+app/api/auth/[...nextauth]/route.ts   Auth.js route handler
+auth.ts                    Auth.js config — Credentials provider เทียบกับ ADMIN_EMAIL/ADMIN_PASSWORD_HASH
+drizzle.config.ts          config สำหรับ drizzle-kit push/studio
+scripts/
+  seed.ts                   ข้อมูลตั้งต้น สร้างจาก lib/data.ts จริง (npm run db:seed)
+  hash-password.ts           สร้าง bcrypt hash สำหรับ ADMIN_PASSWORD_HASH
 proxy.ts                  gate /admin/* ให้ต้องล็อกอินก่อน (เดิมชื่อ middleware.ts)
 ```
 
 ## หลังบ้าน (Admin panel)
 
-หน้า `/admin` จัดการ สาขา/รายวิชา/ทักษะ/อาชีพ/ความต้องการทักษะ + ดูฟีดแบ็กผู้ใช้รวมศูนย์ ผ่าน **Supabase** (Postgres + Auth) — **ตอนนี้ยังเป็นฐานข้อมูลแยกต่างหาก หน้าเว็บสาธารณะ (`/`, `/explore`, `/curriculum`, ฯลฯ) ยังอ่านจาก `lib/data.ts` เหมือนเดิม** (เฟสถัดไปคือเชื่อมสองฝั่งเข้าด้วยกัน) — ยกเว้นฟีดแบ็กที่ต่อขึ้น Supabase จริงแล้ววันนี้
+หน้า `/admin` จัดการ สาขา/รายวิชา/ทักษะ/อาชีพ/ความต้องการทักษะ + ดูฟีดแบ็กผู้ใช้รวมศูนย์ ผ่าน **Neon** (Postgres แบบ serverless, เข้าผ่าน Drizzle ORM) + **Auth.js** (Credentials provider, admin คนเดียว ไม่มีระบบสมัครสมาชิก) — **ตอนนี้ยังเป็นฐานข้อมูลแยกต่างหาก หน้าเว็บสาธารณะ (`/`, `/explore`, `/curriculum`, ฯลฯ) ยังอ่านจาก `lib/data.ts` เหมือนเดิม** (เฟสถัดไปคือเชื่อมสองฝั่งเข้าด้วยกัน) — ยกเว้นฟีดแบ็กที่ต่อขึ้น Neon จริงแล้ววันนี้
 
 ### ตั้งค่าครั้งแรก
 
-1. สร้างโปรเจกต์ใหม่ที่ [supabase.com](https://supabase.com) (ฟรี)
-2. Supabase Dashboard → **SQL Editor** → รัน `supabase/schema.sql` ทั้งไฟล์ → รัน `supabase/seed.sql` ทั้งไฟล์ (ข้อมูลตั้งต้นจะเข้าตรงกับที่เว็บใช้อยู่ทุกตัว)
-3. Supabase Dashboard → **Authentication → Users** → เพิ่มผู้ใช้ 1 คนด้วยอีเมล/รหัสผ่านสำหรับเข้า `/admin`
-4. คัดลอก `.env.local.example` เป็น `.env.local` แล้วใส่ค่าจาก Dashboard → **Project Settings → API**:
-   - `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY` — จาก "Project API keys"
-   - `SUPABASE_SERVICE_ROLE_KEY` — เช่นกัน แต่เป็นคีย์ `service_role` (⚠️ ห้าม commit ห้ามใส่ NEXT_PUBLIC_)
-5. ใส่ตัวแปรทั้ง 3 ตัวเดียวกันนี้ใน Vercel Project Settings → Environment Variables ด้วย แล้ว redeploy
+1. สร้างฐานข้อมูลที่ [neon.tech](https://neon.tech) (ฟรี) — หรือใน Vercel Dashboard → **Storage** → เพิ่ม Neon (ผูก env var ให้อัตโนมัติ)
+2. คัดลอก connection string แบบ **pooled** (มี `-pooler` ในโฮสต์) ใส่ `DATABASE_URL` ใน `.env.local` (คัดลอกจาก `.env.local.example`)
+3. สร้าง session secret: `npx auth secret` (หรือ `openssl rand -base64 33`) ใส่ใน `AUTH_SECRET`
+4. เลือกอีเมล+รหัสผ่านสำหรับ admin ใส่ `ADMIN_EMAIL` แล้วสร้าง hash ด้วย `npx tsx scripts/hash-password.ts "รหัสผ่านที่ต้องการ"` ใส่ผลลัพธ์ใน `ADMIN_PASSWORD_HASH`
+5. สร้างตาราง: `npm run db:push` แล้ว seed ข้อมูลตั้งต้น: `npm run db:seed`
+6. ใส่ตัวแปรทั้ง 4 ตัวเดียวกันนี้ (`DATABASE_URL`, `AUTH_SECRET`, `ADMIN_EMAIL`, `ADMIN_PASSWORD_HASH`) ใน Vercel Project Settings → Environment Variables ด้วย แล้ว redeploy
+
+ดู schema เต็มได้ที่ `lib/db/schema.ts` — แก้ schema แล้ว sync ขึ้น Neon ใหม่ด้วย `npm run db:push` อีกครั้ง หรือเปิด `npm run db:studio` เพื่อดู/แก้ข้อมูลผ่าน browser UI
 
 ## รันเดโม
 
@@ -74,7 +78,7 @@ npm install
 npm run dev
 ```
 
-แล้วเปิด `http://localhost:3000` (หรือ `http://localhost:3000/admin` หลังตั้งค่า Supabase) — build สำหรับ production ด้วย `npm run build && npm start`
+แล้วเปิด `http://localhost:3000` (หรือ `http://localhost:3000/admin` หลังตั้งค่า Neon) — build สำหรับ production ด้วย `npm run build && npm start`
 
 ## ขอบเขตข้อมูล
 

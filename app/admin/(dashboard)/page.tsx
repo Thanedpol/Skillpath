@@ -1,21 +1,17 @@
 import Link from "next/link";
-import { createClient } from "@/lib/supabase/server";
-
-async function count(supabase: Awaited<ReturnType<typeof createClient>>, table: string) {
-  const { count } = await supabase.from(table).select("*", { count: "exact", head: true });
-  return count ?? 0;
-}
+import { eq } from "drizzle-orm";
+import { db } from "@/lib/db";
+import { courses as coursesT, demand as demandT, feedback as feedbackT, majors as majorsT, roles as rolesT, skills as skillsT } from "@/lib/db/schema";
 
 export default async function AdminHomePage() {
-  const supabase = await createClient();
   const [majors, courses, skills, roles, demand, feedback, feedbackUp] = await Promise.all([
-    count(supabase, "majors"),
-    count(supabase, "courses"),
-    count(supabase, "skills"),
-    count(supabase, "roles"),
-    count(supabase, "demand"),
-    count(supabase, "feedback"),
-    supabase.from("feedback").select("*", { count: "exact", head: true }).eq("vote", "up"),
+    db.$count(majorsT),
+    db.$count(coursesT),
+    db.$count(skillsT),
+    db.$count(rolesT),
+    db.$count(demandT),
+    db.$count(feedbackT),
+    db.$count(feedbackT, eq(feedbackT.vote, "up")),
   ]);
 
   return (
@@ -51,7 +47,7 @@ export default async function AdminHomePage() {
         <Link href="/admin/feedback" className="admin-card" style={{ textDecoration: "none", color: "inherit" }}>
           <div className="n">{feedback}</div>
           <div className="l">
-            ฟีดแบ็กทั้งหมด {feedback ? `(${feedbackUp.count ?? 0} ตรง)` : ""}
+            ฟีดแบ็กทั้งหมด {feedback ? `(${feedbackUp} ตรง)` : ""}
           </div>
         </Link>
       </div>
