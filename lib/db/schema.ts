@@ -23,12 +23,22 @@ export const faculties = pgTable("faculties", {
   campus: text("campus"),
 });
 
+/* faculty_id เป็น null ได้โดยตั้งใจ — ชุดข้อมูลหลักสูตรเปิดของ data.go.th
+   ไม่มีคอลัมน์คณะเลย มีแค่ชื่อหลักสูตรกับมหาวิทยาลัย การเดาคณะจากชื่อหลักสูตร
+   จะเป็นการแต่งข้อมูล จึงปล่อยว่างไว้จนกว่าจะมีคนยืนยัน */
 export const majors = pgTable("majors", {
   id: text("id").primaryKey(),
-  faculty_id: text("faculty_id").notNull().references(() => faculties.id, { onDelete: "cascade" }),
+  faculty_id: text("faculty_id").references(() => faculties.id, { onDelete: "set null" }),
+  university_id: text("university_id").notNull().references(() => universities.id, { onDelete: "cascade" }),
   name: text("name").notNull(),
   ready: boolean("ready").notNull().default(false),
   note: text("note"),
+  /* รหัสหลักสูตรทางการ (CURR_ID) — ใช้ยืนยันว่าเป็นหลักสูตรที่ขึ้นทะเบียนจริง */
+  curriculum_id: text("curriculum_id"),
+  level: text("level"),
+  isced_field: text("isced_field"),
+  /* ที่มาของข้อมูลแถวนี้ — ต้องระบุเสมอว่ามาจากไหน */
+  source: text("source"),
 });
 
 /* ทุกวิชาผูกกับ major_id เสมอ — รหัสวิชาซ้ำกันได้ข้ามสาขา คีย์หลักจึงเป็น (major_id, code) */

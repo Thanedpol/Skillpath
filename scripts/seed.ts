@@ -34,7 +34,18 @@ async function main() {
   );
 
   await db.insert(majors).values(
-    MAJORS.map((m) => ({ id: m.id, faculty_id: m.facultyId, name: m.name, ready: m.ready, note: m.note ?? null }))
+    MAJORS.map((m) => ({
+      id: m.id,
+      university_id: m.universityId,
+      faculty_id: m.facultyId ?? null,
+      name: m.name,
+      ready: m.ready,
+      note: m.note ?? null,
+      curriculum_id: m.curriculumId ?? null,
+      level: m.level ?? null,
+      isced_field: m.iscedField ?? null,
+      source: m.source ?? null,
+    }))
   );
 
   const courseRows = Object.entries(COURSES_BY_MAJOR).flatMap(([major_id, cs]) =>

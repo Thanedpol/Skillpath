@@ -65,10 +65,16 @@ export async function upsertMajor(formData: FormData) {
   await assertAdmin();
   const row = {
     id: str(formData, "id"),
-    faculty_id: str(formData, "faculty_id"),
+    university_id: str(formData, "university_id"),
+    // ว่างได้ — ไม่บังคับให้เดาคณะเมื่อไม่รู้จริง
+    faculty_id: strOrNull(formData, "faculty_id"),
     name: str(formData, "name"),
     ready: bool(formData, "ready"),
     note: strOrNull(formData, "note"),
+    curriculum_id: strOrNull(formData, "curriculum_id"),
+    level: strOrNull(formData, "level"),
+    isced_field: strOrNull(formData, "isced_field"),
+    source: strOrNull(formData, "source"),
   };
   await db.insert(majors).values(row).onConflictDoUpdate({ target: majors.id, set: row });
   revalidatePath("/admin/majors");

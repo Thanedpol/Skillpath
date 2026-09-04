@@ -6,6 +6,7 @@
    ประกาศงาน = ชุดข้อมูลตัวอย่างสำหรับสาธิต UI เท่านั้น
    ============================================================ */
 import type { SkillMeta, Course, Term, Role, DemandLevels, Post, Major, Faculty, University, Research } from "./types";
+import { TU_OPENDATA_MAJORS } from "./data.majors-tu";
 
 /* ---- เรียนแล้ว (อ้างอิงหลักสูตร วท.บ. วิทยาการคอมพิวเตอร์ มธ. ปรับปรุง 2566) ---- */
 export const SK_CS: Record<string, SkillMeta> = {
@@ -431,16 +432,38 @@ export const FACULTIES: Faculty[] = [
    สาขาอื่นแสดงเป็น "เร็วๆ นี้" เพื่อให้เห็นทิศทางของแพลตฟอร์ม
    โดยไม่ใส่ข้อมูลที่ยังไม่ได้ตรวจสอบ
    ============================================================ */
-export const MAJORS: Major[] = [
-  { id: "cs-tu", name: "วิทยาการคอมพิวเตอร์", facultyId: "sci-tu", ready: true,
+const CURATED_SOURCE = "เอกสารหลักสูตรฉบับจริง · ทีมสกัดรายวิชาและทักษะเอง";
+const REGISTRY_SOURCE = "data.go.th · univ_cur_11_01.csv (ทะเบียนหลักสูตรอุดมศึกษา)";
+
+/* สาขาที่ทีมสกัดข้อมูลจากเอกสารหลักสูตรจริง — curriculumId ตรวจสอบแล้วว่าตรงกับ
+   ทะเบียนหลักสูตรในชุดข้อมูลเปิด ไม่ได้จับคู่จากการเดาชื่อ */
+const CURATED_MAJORS: Major[] = [
+  { id: "cs-tu", name: "วิทยาการคอมพิวเตอร์", universityId: "tu", facultyId: "sci-tu", ready: true,
+    curriculumId: "25520051102624", level: "ปริญญาตรี", iscedField: "เทคโนโลยีสารสนเทศ และการสื่อสาร",
+    source: CURATED_SOURCE,
     note: "หลักสูตรปรับปรุง พ.ศ. 2566 · ข้อมูลรายวิชาอ้างอิงเอกสารจริง" },
-  { id: "stat-sci-tu", name: "สถิติ — วิชาเอกสถิติศาสตร์", facultyId: "sci-tu", ready: true,
+  /* ทะเบียนหลักสูตรบันทึกสถิติเป็นหลักสูตรเดียว ส่วนวิชาเอก 2 ตัวเป็นการแยกภายใน
+     หลักสูตรเดียวกันตามเอกสาร มธ. ทั้งคู่จึงอ้างรหัสหลักสูตรเดียวกันอย่างถูกต้อง */
+  { id: "stat-sci-tu", name: "สถิติ — วิชาเอกสถิติศาสตร์", universityId: "tu", facultyId: "sci-tu", ready: true,
+    curriculumId: "25400051100371", level: "ปริญญาตรี", iscedField: "วิทยาศาสตร์ธรรมชาติ, คณิตศาสตร์และสถิติ",
+    source: CURATED_SOURCE,
     note: "หลักสูตรปรับปรุง พ.ศ. 2566 · โครงการภาคปกติ · บางวิชาเลือกไม่มีเทอมกำกับตายตัวในแผน จึงประมาณจากวิชาบังคับก่อน — ระบุไว้ในหน้ารายวิชา" },
-  { id: "stat-da-tu", name: "สถิติ — วิชาเอกวิทยาการวิเคราะห์ข้อมูล", facultyId: "sci-tu", ready: true,
+  { id: "stat-da-tu", name: "สถิติ — วิชาเอกวิทยาการวิเคราะห์ข้อมูล", universityId: "tu", facultyId: "sci-tu", ready: true,
+    curriculumId: "25400051100371", level: "ปริญญาตรี", iscedField: "วิทยาศาสตร์ธรรมชาติ, คณิตศาสตร์และสถิติ",
+    source: CURATED_SOURCE,
     note: "หลักสูตรปรับปรุง พ.ศ. 2566 · โครงการภาคพิเศษ · บางวิชาเลือกไม่มีเทอมกำกับตายตัวในแผน จึงประมาณจากวิชาบังคับก่อน — ระบุไว้ในหน้ารายวิชา" },
-  { id: "it-tu", name: "เทคโนโลยีสารสนเทศ", facultyId: "sci-tu", ready: false },
-  { id: "ce", name: "วิศวกรรมคอมพิวเตอร์", facultyId: "eng-tu", ready: false }
+  { id: "ce", name: "วิศวกรรมคอมพิวเตอร์", universityId: "tu", facultyId: "eng-tu", ready: false,
+    curriculumId: "25450051100387", level: "ปริญญาตรี", iscedField: "วิศวกรรม, อุตสาหกรรม และการก่อสร้าง",
+    source: REGISTRY_SOURCE },
+  /* ค้นทะเบียนหลักสูตรเปิดแล้วไม่พบหลักสูตรชื่อนี้ของ มธ. — คงรายการไว้ตามที่ทีม
+     ใส่ไว้แต่แรก แต่ระบุตรง ๆ ว่ายังยืนยันกับข้อมูลเปิดไม่ได้ ไม่จับคู่รหัสมั่ว */
+  { id: "it-tu", name: "เทคโนโลยีสารสนเทศ", universityId: "tu", facultyId: "sci-tu", ready: false,
+    source: "ทีมเพิ่มเอง — ยังไม่พบหลักสูตรชื่อนี้ในทะเบียนหลักสูตรเปิดของ data.go.th" }
 ];
+
+/* 160 หลักสูตรปริญญาตรีที่เหลือของ มธ. จากทะเบียนหลักสูตรเปิด — ready=false ทุกตัว
+   และไม่มี facultyId เพราะชุดข้อมูลไม่มีคอลัมน์คณะ (ดู lib/data.majors-tu.ts) */
+export const MAJORS: Major[] = [...CURATED_MAJORS, ...TU_OPENDATA_MAJORS];
 
 /* ---- ชื่อคณะ/มหาวิทยาลัยสำหรับแสดงผล ประกอบจากแหล่งเดียว ---- */
 export function facultyLabel(facultyId: string): string {
@@ -450,10 +473,18 @@ export function facultyLabel(facultyId: string): string {
   return [f.name, u?.shortName, f.campus].filter(Boolean).join(" ");
 }
 
-/* ใช้แทน major.school เดิม — "คณะวิทยาศาสตร์และเทคโนโลยี มธ. ศูนย์รังสิต" */
+export function universityLabel(universityId: string): string {
+  const u = UNIVERSITIES.find((x) => x.id === universityId);
+  return u ? u.name : "";
+}
+
+/* ใช้แทน major.school เดิม — "คณะวิทยาศาสตร์และเทคโนโลยี มธ. ศูนย์รังสิต"
+   สาขาที่มาจากทะเบียนหลักสูตรเปิดจะไม่มีคณะ (ชุดข้อมูลไม่มีคอลัมน์นั้น)
+   จึงคืนชื่อมหาวิทยาลัยอย่างเดียว ไม่เดาคณะขึ้นมาเอง */
 export function schoolLabel(majorId: string): string {
   const m = MAJORS.find((x) => x.id === majorId);
-  return m ? facultyLabel(m.facultyId) : "";
+  if (!m) return "";
+  return m.facultyId ? facultyLabel(m.facultyId) : universityLabel(m.universityId);
 }
 
 /* ---- ทุกหน้าที่ต้องดูข้อมูลรายวิชา/ทักษะของผู้ใช้ ต้องผ่าน 2 container นี้เท่านั้น

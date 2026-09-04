@@ -16,6 +16,17 @@ export default function OnboardingPage() {
   const [step, setStep] = useState(1);
   const [advOpen, setAdvOpen] = useState(false);
   const [showToast, setShowToast] = useState(false);
+  const [showPending, setShowPending] = useState(false);
+
+  /* สาขาที่เลือกได้จริงคือสาขาที่มีข้อมูลรายวิชา+ทักษะแล้วเท่านั้น
+     ที่เหลือมาจากทะเบียนหลักสูตรเปิด แสดงให้เห็นว่ามีอยู่จริงแต่ยังใช้ไม่ได้ */
+  const readyMajors = MAJORS.filter((m) => m.ready);
+  const pendingMajors = MAJORS.filter((m) => !m.ready);
+  const pendingByField: Record<string, typeof pendingMajors> = {};
+  pendingMajors.forEach((m) => {
+    const k = m.iscedField || "ไม่ระบุกลุ่มสาขา";
+    (pendingByField[k] = pendingByField[k] || []).push(m);
+  });
 
   useEffect(() => {
     const existing = loadProfile();
@@ -77,24 +88,22 @@ export default function OnboardingPage() {
               <span className="eyebrow">ขั้นตอน 1 จาก 4</span>
               <h2>คุณเรียนสาขาอะไร</h2>
               <p>
-                ตอนนี้ SkillPath มีข้อมูลหลักสูตรจริงพร้อมใช้ 2 คณะ — วิทยาการคอมพิวเตอร์ และสถิติ (2 วิชาเอก) สาขาอื่นกำลังอยู่ระหว่างจัดทำ —
-                เลือกไว้ก่อนได้ ระบบจะแจ้งเมื่อพร้อม
+                ตอนนี้มี {readyMajors.length} สาขาที่ข้อมูลรายวิชาและทักษะพร้อมใช้งานจริง
+                ส่วนอีก {pendingMajors.length} หลักสูตรของ มธ. นำเข้าจากทะเบียนหลักสูตรของ data.go.th แล้ว
+                แต่ยังไม่ได้สกัดทักษะจากเอกสารหลักสูตร จึงยังเลือกไม่ได้
               </p>
             </div>
+
             <div className="choicegrid">
-              {MAJORS.map((m) => (
+              {readyMajors.map((m) => (
                 <button
                   key={m.id}
                   type="button"
-                  className={`choice${m.ready ? "" : " soon"}`}
+                  className="choice"
                   aria-pressed={m.id === draft.major}
-                  disabled={!m.ready}
                   onClick={() => setDraft((d) => (d.major === m.id ? d : { ...d, major: m.id, overrides: {} }))}
                 >
-                  <span className="cname">
-                    {m.name}
-                    {!m.ready && <span className="soonchip">เร็วๆ นี้</span>}
-                  </span>
+                  <span className="cname">{m.name}</span>
                   <span className="cnote">
                     {schoolLabel(m.id)}
                     {m.note ? ` — ${m.note}` : ""}
@@ -102,6 +111,36 @@ export default function OnboardingPage() {
                 </button>
               ))}
             </div>
+
+            <button className="advtoggle" type="button" onClick={() => setShowPending((v) => !v)}>
+              {showPending
+                ? "ซ่อนหลักสูตรที่ยังไม่พร้อม ▴"
+                : `ดูอีก ${pendingMajors.length} หลักสูตรของ มธ. ที่ยังไม่พร้อมใช้งาน ▾`}
+            </button>
+
+            {showPending ? (
+              <div className="courselist">
+                <p className="cnote" style={{ padding: "0 0 10px", color: "var(--muted)", fontSize: 12.5 }}>
+                  รายชื่อจากทะเบียนหลักสูตรอุดมศึกษา (data.go.th · univ_cur_11_01.csv) — แสดงตามที่บันทึกไว้จริง
+                  ยังไม่มีข้อมูลคณะและทักษะ เพราะชุดข้อมูลไม่ได้ให้มา
+                </p>
+                {Object.entries(pendingByField).map(([field, list]) => (
+                  <div className="termgroup" key={field}>
+                    <div className="termgrouphead">
+                      {field} · {list.length} หลักสูตร
+                    </div>
+                    {list.map((m) => (
+                      <div className="courserow" key={m.id}>
+                        <label style={{ opacity: 0.75 }}>
+                          {m.name}
+                          {m.curriculumId ? <span className="cs">รหัสหลักสูตร {m.curriculumId}</span> : null}
+                        </label>
+                      </div>
+                    ))}
+                  </div>
+                ))}
+              </div>
+            ) : null}
             <div className="wizfoot">
               <span />
               <button className="cta" type="button" disabled={!draft.major} onClick={() => goTo(2)}>

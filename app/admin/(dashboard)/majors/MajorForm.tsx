@@ -7,13 +7,27 @@ import { upsertMajor } from "@/lib/actions/admin";
 type Major = {
   id: string;
   name: string;
-  faculty_id: string;
+  university_id: string;
+  faculty_id: string | null;
   ready: boolean;
   note: string | null;
+  curriculum_id: string | null;
+  level: string | null;
+  isced_field: string | null;
+  source: string | null;
 };
 type FacultyOption = { id: string; label: string };
+type UniversityOption = { id: string; name: string };
 
-export default function MajorForm({ faculties, major }: { faculties: FacultyOption[]; major?: Major }) {
+export default function MajorForm({
+  faculties,
+  universities,
+  major,
+}: {
+  faculties: FacultyOption[];
+  universities: UniversityOption[];
+  major?: Major;
+}) {
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
@@ -46,15 +60,47 @@ export default function MajorForm({ faculties, major }: { faculties: FacultyOpti
           </div>
 
           <div className="admin-field">
-            <label htmlFor="faculty_id">คณะ</label>
-            <select id="faculty_id" name="faculty_id" defaultValue={major?.faculty_id} required>
-              {!major ? <option value="">— เลือกคณะ —</option> : null}
+            <label htmlFor="university_id">มหาวิทยาลัย</label>
+            <select id="university_id" name="university_id" defaultValue={major?.university_id} required>
+              {!major ? <option value="">— เลือกมหาวิทยาลัย —</option> : null}
+              {universities.map((u) => (
+                <option key={u.id} value={u.id}>
+                  {u.name}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="admin-field">
+            <label htmlFor="faculty_id">คณะ (เว้นว่างได้ถ้ายังไม่ยืนยัน)</label>
+            <select id="faculty_id" name="faculty_id" defaultValue={major?.faculty_id || ""}>
+              <option value="">— ยังไม่ระบุคณะ —</option>
               {faculties.map((f) => (
                 <option key={f.id} value={f.id}>
                   {f.label}
                 </option>
               ))}
             </select>
+          </div>
+
+          <div className="admin-field">
+            <label htmlFor="curriculum_id">รหัสหลักสูตรทางการ (ไม่บังคับ)</label>
+            <input id="curriculum_id" name="curriculum_id" defaultValue={major?.curriculum_id || ""} />
+          </div>
+
+          <div className="admin-field">
+            <label htmlFor="level">ระดับ (เช่น &quot;ปริญญาตรี&quot;)</label>
+            <input id="level" name="level" defaultValue={major?.level || ""} />
+          </div>
+
+          <div className="admin-field span2">
+            <label htmlFor="isced_field">กลุ่มสาขา ISCED (ไม่บังคับ)</label>
+            <input id="isced_field" name="isced_field" defaultValue={major?.isced_field || ""} />
+          </div>
+
+          <div className="admin-field span2">
+            <label htmlFor="source">แหล่งที่มาของข้อมูล</label>
+            <input id="source" name="source" defaultValue={major?.source || ""} placeholder="เช่น data.go.th · univ_cur_11_01.csv" />
           </div>
 
           <div className="admin-field span2">

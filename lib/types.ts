@@ -73,13 +73,23 @@ export interface Faculty {
 
 /* school ไม่ได้เก็บเป็นข้อความในสาขาอีกต่อไป — ประกอบขึ้นจาก
    คณะ + มหาวิทยาลัย ด้วย schoolLabel() ใน lib/data.ts เพื่อไม่ให้
-   สาขาที่อยู่คณะเดียวกันเขียนชื่อคณะไม่ตรงกันอย่างที่เคยเป็น */
+   สาขาที่อยู่คณะเดียวกันเขียนชื่อคณะไม่ตรงกันอย่างที่เคยเป็น
+
+   facultyId ว่างได้ — ชุดข้อมูลหลักสูตรเปิดไม่มีคอลัมน์คณะ การเดาคณะ
+   จากชื่อหลักสูตรคือการแต่งข้อมูล จึงเว้นว่างจนกว่าจะมีคนยืนยัน */
 export interface Major {
   id: string;
   name: string;
-  facultyId: string;
+  universityId: string;
+  facultyId?: string;
   ready: boolean;
   note?: string;
+  /* รหัสหลักสูตรทางการจากทะเบียนหลักสูตร (CURR_ID) */
+  curriculumId?: string;
+  level?: string;
+  iscedField?: string;
+  /* ที่มาของข้อมูล — ระบุเสมอ ห้ามเว้น */
+  source?: string;
 }
 
 export interface Profile {

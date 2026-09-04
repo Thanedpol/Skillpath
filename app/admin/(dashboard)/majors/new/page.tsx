@@ -1,8 +1,8 @@
 import MajorForm from "../MajorForm";
-import { getFacultyOptions } from "../facultyOptions";
+import { getFacultyOptions, getUniversityOptions } from "../facultyOptions";
 
 export default async function NewMajorPage() {
-  const faculties = await getFacultyOptions();
+  const [faculties, universities] = await Promise.all([getFacultyOptions(), getUniversityOptions()]);
 
   return (
     <>
@@ -11,7 +11,7 @@ export default async function NewMajorPage() {
           <h1>เพิ่มสาขาใหม่</h1>
         </div>
       </div>
-      <MajorForm faculties={faculties} />
+      <MajorForm faculties={faculties} universities={universities} />
     </>
   );
 }

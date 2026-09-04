@@ -23,3 +23,10 @@ export async function getFacultyOptions() {
     label: [f.name, f.universityShort, f.campus].filter(Boolean).join(" "),
   }));
 }
+
+export async function getUniversityOptions() {
+  return db
+    .select({ id: universitiesT.id, name: universitiesT.name })
+    .from(universitiesT)
+    .orderBy(asc(universitiesT.name));
+}
