@@ -7,6 +7,11 @@ import bcrypt from "bcryptjs";
 export const { handlers, auth, signIn, signOut } = NextAuth({
   session: { strategy: "jwt" },
   pages: { signIn: "/admin/login" },
+  /* Auth.js ปฏิเสธ Host header ที่ไม่รู้จักในโหมด production (UntrustedHost)
+     บน Vercel มันตรวจจับโฮสต์ให้เอง แต่ที่อื่น — รวมถึง `npm start` ในเครื่อง —
+     จะล็อกอินไม่ได้เลยถ้าไม่เปิดค่านี้ ปลอดภัยเพราะ Vercel/reverse proxy
+     เป็นผู้กำหนด Host header ให้ ไม่ได้รับค่าดิบจากผู้ใช้โดยตรง */
+  trustHost: true,
   providers: [
     Credentials({
       credentials: { email: {}, password: {} },

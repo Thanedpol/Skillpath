@@ -46,7 +46,10 @@ lib/
   actions/                 Server Actions: auth.ts (เข้า/ออกระบบ), admin.ts (CRUD ของทุก resource), feedback.ts (โหวตสาธารณะ)
 app/admin/
   login/page.tsx           เข้าสู่ระบบผู้ดูแล (Auth.js)
-  (dashboard)/              หน้าที่ต้องล็อกอิน — sidebar + ภาพรวม + CRUD: สาขา/รายวิชา/ทักษะ/อาชีพ+ความต้องการ/ฟีดแบ็ก
+  (dashboard)/              หน้าที่ต้องล็อกอิน — sidebar แบ่งเป็น 3 กลุ่ม:
+                              หลักสูตร  → มหาวิทยาลัย / คณะ / สาขา / รายวิชา / ทักษะ
+                              ตลาดงาน  → อาชีพ + ความต้องการทักษะ
+                              ผู้ใช้     → ฟีดแบ็ก
 app/api/auth/[...nextauth]/route.ts   Auth.js route handler
 auth.ts                    Auth.js config — Credentials provider เทียบกับ ADMIN_EMAIL/ADMIN_PASSWORD_HASH
 drizzle.config.ts          config สำหรับ drizzle-kit push/studio

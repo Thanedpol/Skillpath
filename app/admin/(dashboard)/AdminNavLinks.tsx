@@ -24,6 +24,10 @@ const GROUPS: { label: string; links: [string, string][] }[] = [
     label: "ผู้ใช้",
     links: [["/admin/feedback", "ฟีดแบ็กผู้ใช้"]],
   },
+  {
+    label: "แหล่งข้อมูล",
+    links: [["/admin/data-api", "API ข้อมูลเปิด"]],
+  },
 ];
 
 export default function AdminNavLinks() {
