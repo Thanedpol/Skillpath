@@ -6,7 +6,7 @@ import type { CkanError, CkanResult } from "@/lib/ckan";
 
 type State = CkanResult | CkanError | null;
 
-export default function CkanExplorer({ hasKey }: { hasKey: boolean }) {
+export default function CkanExplorer() {
   const [state, setState] = useState<State>(null);
   const [pending, setPending] = useState(false);
 
@@ -48,7 +48,7 @@ export default function CkanExplorer({ hasKey }: { hasKey: boolean }) {
             </div>
           </div>
           <div className="admin-formfoot">
-            <button type="submit" className="cta" disabled={pending || !hasKey}>
+            <button type="submit" className="cta" disabled={pending}>
               {pending ? "กำลังดึง…" : "ดึงข้อมูล"}
             </button>
           </div>

@@ -2,12 +2,17 @@ import "server-only";
 
 /* ============================================================
    CKAN Data API (data.go.th) — ตัวเรียกฝั่งเซิร์ฟเวอร์อย่างเดียว
-   API key ส่งผ่าน header ชื่อ "api-key" (ยืนยันจากการทดสอบ: ไม่ส่ง header
-   จะได้ "No API key found in request" ส่วนส่งผิดค่าได้ "Invalid
-   authentication credentials") — คีย์ต้องไม่หลุดไปฝั่ง browser
+
+   ใช้ endpoint สาธารณะ data.go.th/api/3/action โดยตรง ไม่ต้องใช้ API key
+   และไม่ติดโควตา 1,000 ครั้ง/วัน — ตรวจสอบแล้วว่า opend.data.go.th/get-ckan
+   (ตัวที่หน้าเว็บ data.go.th แนะนำ ซึ่งบังคับใช้คีย์) แค่ 301 redirect มาที่
+   endpoint เดียวกันนี้ ซึ่งตอบข้อมูลชุดเดียวกันแม้ไม่ส่งคีย์เลย
+
+   ยังรองรับ DATA_GO_TH_API_KEY แบบไม่บังคับ เผื่อชุดข้อมูลบางตัวต้องใช้ —
+   ส่งผ่าน header ชื่อ "api-key" และอ่านฝั่งเซิร์ฟเวอร์เท่านั้น
    ============================================================ */
 
-const BASE = "https://opend.data.go.th/get-ckan";
+const BASE = "https://data.go.th/api/3/action";
 
 export type CkanField = { id: string; type: string };
 
@@ -32,13 +37,10 @@ export async function datastoreSearch(opts: {
   offset?: number;
   q?: string;
 }): Promise<CkanResult | CkanError> {
-  const apiKey = process.env.DATA_GO_TH_API_KEY;
-  if (!apiKey) {
-    return { ok: false, error: "ยังไม่ได้ตั้งค่า DATA_GO_TH_API_KEY — ขอ API key ที่ data.go.th แล้วใส่ใน .env.local" };
-  }
   if (!opts.resourceId.trim()) {
     return { ok: false, error: "กรุณาระบุ resource_id" };
   }
+  const apiKey = process.env.DATA_GO_TH_API_KEY;
 
   const url = new URL(`${BASE}/datastore_search`);
   url.searchParams.set("resource_id", opts.resourceId.trim());
@@ -49,7 +51,7 @@ export async function datastoreSearch(opts: {
   let res: Response;
   try {
     res = await fetch(url, {
-      headers: { "api-key": apiKey },
+      headers: apiKey ? { "api-key": apiKey } : undefined,
       // ข้อมูลเปิดเปลี่ยนไม่บ่อย แต่ตอนสำรวจอยากเห็นของสดเสมอ
       cache: "no-store",
     });
