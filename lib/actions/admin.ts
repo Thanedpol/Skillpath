@@ -4,7 +4,7 @@ import { and, eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { auth } from "@/auth";
 import { db } from "@/lib/db";
-import { courses, demand, faculties, majors, roles, skills, universities } from "@/lib/db/schema";
+import { canonical_skills, courses, demand, faculties, majors, roles, skill_aliases, skills, universities } from "@/lib/db/schema";
 
 async function assertAdmin() {
   const session = await auth();
@@ -185,4 +185,55 @@ export async function deleteDemand(id: number) {
   await assertAdmin();
   await db.delete(demand).where(eq(demand.id, id));
   revalidatePath("/admin/roles");
+}
+
+/* ---------------- ชุดรหัสสกิลกลาง ---------------- */
+export async function upsertCanonicalSkill(formData: FormData) {
+  await assertAdmin();
+  const id = str(formData, "id");
+  if (!id) throw new Error("ต้องระบุรหัสสกิล");
+  const row = {
+    id,
+    name: str(formData, "name") || id,
+    name_en: strOrNull(formData, "name_en"),
+    category: strOrNull(formData, "category"),
+    esco_id: strOrNull(formData, "esco_id"),
+    note: strOrNull(formData, "note"),
+  };
+  await db.insert(canonical_skills).values(row).onConflictDoUpdate({ target: canonical_skills.id, set: row });
+  revalidatePath("/admin/canonical-skills");
+  revalidatePath(`/admin/canonical-skills/${encodeURIComponent(id)}`);
+}
+
+export async function deleteCanonicalSkill(id: string) {
+  await assertAdmin();
+  /* แถวสกิลหลักสูตร/ความต้องการตลาดไม่หายไปด้วย — FK ตั้งเป็น set null
+     เพราะข้อมูลต้นทางต้องอยู่ครบ แม้จะเลิกใช้รหัสกลางตัวนี้ */
+  await db.delete(canonical_skills).where(eq(canonical_skills.id, id));
+  revalidatePath("/admin/canonical-skills");
+}
+
+export async function addSkillAlias(formData: FormData) {
+  await assertAdmin();
+  const canonical_id = str(formData, "canonical_id");
+  const alias = str(formData, "alias");
+  if (!canonical_id || !alias) throw new Error("ต้องระบุทั้งรหัสสกิลกลางและคำที่ใช้เรียก");
+  const sourceRaw = str(formData, "source");
+  const source = sourceRaw === "curriculum" || sourceRaw === "jd" ? sourceRaw : "manual";
+  const langRaw = str(formData, "lang");
+  const lang = langRaw === "th" || langRaw === "en" ? langRaw : null;
+  await db
+    .insert(skill_aliases)
+    .values({ canonical_id, alias, source, lang, note: strOrNull(formData, "note") })
+    /* คำซ้ำถือว่าไม่มีอะไรต้องทำ — ไม่ต้องเด้ง error ใส่หน้าคนกรอก */
+    .onConflictDoNothing();
+  revalidatePath(`/admin/canonical-skills/${encodeURIComponent(canonical_id)}`);
+  revalidatePath("/admin/canonical-skills");
+}
+
+export async function deleteSkillAlias(id: number, canonicalId: string) {
+  await assertAdmin();
+  await db.delete(skill_aliases).where(eq(skill_aliases.id, id));
+  revalidatePath(`/admin/canonical-skills/${encodeURIComponent(canonicalId)}`);
+  revalidatePath("/admin/canonical-skills");
 }

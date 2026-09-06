@@ -4,8 +4,21 @@
     {
       "name": "skillpath-dev",
       "runtimeExecutable": "npm",
-      "runtimeArgs": ["run", "dev"],
+      "runtimeArgs": [
+        "run",
+        "dev"
+      ],
       "port": 3000
+    },
+    {
+      "name": "skillpath-prod",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": [
+        "run",
+        "start"
+      ],
+      "port": 3000,
+      "url": "http://127.0.0.1:3000"
     }
   ]
 }

@@ -6,7 +6,7 @@ config({ path: ".env.local" });
 
 import { neon } from "@neondatabase/serverless";
 import { drizzle } from "drizzle-orm/neon-http";
-import { courses, demand, faculties, feedback, majors, roles, skills, universities } from "../lib/db/schema";
+import { canonical_skills, courses, demand, faculties, feedback, majors, roles, skill_aliases, skills, universities } from "../lib/db/schema";
 import * as schema from "../lib/db/schema";
 import { COURSES_BY_MAJOR, DEMAND, FACULTIES, MAJORS, ROLES, SK_BY_MAJOR, UNIVERSITIES } from "../lib/data";
 
@@ -19,6 +19,8 @@ async function main() {
   await db.delete(demand);
   await db.delete(feedback);
   await db.delete(skills);
+  await db.delete(skill_aliases);
+  await db.delete(canonical_skills);
   await db.delete(courses);
   await db.delete(roles);
   await db.delete(majors);
@@ -71,13 +73,33 @@ async function main() {
       route: m.route ?? null,
     }))
   );
-  if (skillRows.length) await db.insert(skills).values(skillRows);
+  /* ------------------------------------------------------------
+     ชุดรหัสสกิลกลาง — สร้างจากสกิลที่มีอยู่จริงเท่านั้น ไม่แต่งเพิ่ม
+     รหัสคือชื่อสกิลเดิม จึงผูกกลับเข้าแถวเดิมได้ตรงตัวโดยไม่ต้องเดา
+
+     หมายเหตุ: ฟิลด์ alias ในข้อมูลเดิมเป็นคำอธิบายว่า "เอกสารหลักสูตร
+     เขียนว่าอะไร" ไม่ใช่คำพ้องที่ใช้ค้นได้ จึงไม่ถูกนำมาใส่ตาราง
+     skill_aliases — ตารางนั้นเริ่มว่างและให้ทีมเติมจากของจริง
+     ------------------------------------------------------------ */
+  const canonicalIds = new Set<string>();
+  for (const sk of Object.values(SK_BY_MAJOR)) for (const key of Object.keys(sk)) canonicalIds.add(key);
+  for (const levels of Object.values(DEMAND)) {
+    for (const level of ["jr", "sr"] as const) {
+      for (const [key] of levels[level] || []) canonicalIds.add(key);
+    }
+  }
+  const canonicalRows = [...canonicalIds].sort().map((id) => ({ id, name: id }));
+  if (canonicalRows.length) await db.insert(canonical_skills).values(canonicalRows);
+
+  if (skillRows.length) {
+    await db.insert(skills).values(skillRows.map((r) => ({ ...r, canonical_id: r.key })));
+  }
 
   await db.insert(roles).values(ROLES.map((r) => ({ id: r.id, name: r.name, posts: r.posts, jr_posts: r.jrPosts, fit: r.fit })));
 
   const demandRows = Object.entries(DEMAND).flatMap(([role_id, levels]) =>
     (["jr", "sr"] as const).flatMap((level) =>
-      (levels[level] || []).map(([skill_key, count]) => ({ role_id, level, skill_key, count }))
+      (levels[level] || []).map(([skill_key, count]) => ({ role_id, level, skill_key, count, canonical_id: skill_key }))
     )
   );
   if (demandRows.length) await db.insert(demand).values(demandRows);
@@ -88,6 +110,7 @@ async function main() {
     majors: MAJORS.length,
     courses: courseRows.length,
     skills: skillRows.length,
+    canonical_skills: canonicalRows.length,
     roles: ROLES.length,
     demand: demandRows.length,
   });

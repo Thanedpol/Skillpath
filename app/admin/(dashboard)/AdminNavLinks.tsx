@@ -21,6 +21,11 @@ const GROUPS: { label: string; links: [string, string][] }[] = [
     links: [["/admin/roles", "อาชีพ + ความต้องการ"]],
   },
   {
+    /* สกิลกลางอยู่กลุ่มของตัวเอง เพราะเป็นตัวเชื่อมสองฝั่ง ไม่ได้เป็นของฝั่งไหนฝ่ายเดียว */
+    label: "การจับคู่ทักษะ",
+    links: [["/admin/canonical-skills", "สกิลกลาง + คำที่ใช้เรียก"]],
+  },
+  {
     label: "ผู้ใช้",
     links: [
       ["/admin/feedback", "ฟีดแบ็กผู้ใช้"],

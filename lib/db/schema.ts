@@ -71,6 +71,9 @@ export const skills = pgTable(
     act: text("act"),
     time_estimate: text("time_estimate"),
     route: text("route"),
+    /* ผูกกับสกิลกลาง — null ได้ เพราะสกิลที่ยังไม่ได้ทบทวนต้องเห็นว่ายังไม่ผูก
+       ไม่ใช่ผูกมั่วไว้ก่อน การจับคู่เดิมด้วย key ยังทำงานเหมือนเดิมทุกประการ */
+    canonical_id: text("canonical_id").references(() => canonical_skills.id, { onDelete: "set null" }),
   },
   (t) => [
     primaryKey({ columns: [t.major_id, t.key] }),
@@ -80,6 +83,46 @@ export const skills = pgTable(
       name: "skills_major_course_fk",
     }).onDelete("set null"),
     check("skills_kind_check", sql`${t.kind} in ('course','work')`),
+  ]
+);
+
+/* ============================================================
+   ชุดรหัสสกิลกลาง (canonical skills)
+   ปัญหาที่แก้: ฝั่งหลักสูตรเขียน "การจัดการข้อมูลด้วยเอสคิวแอล" ฝั่งประกาศงาน
+   เขียน "SQL" — คนละคำแต่คือสกิลเดียวกัน ถ้าไม่มีรหัสกลาง การจับคู่จะเดาตลอดไป
+
+   id ใช้ชื่อสกิลเดิมที่ระบบใช้อยู่ (เช่น "SQL", "สถิติเชิงพรรณนา") โดยตั้งใจ —
+   ระบบเดิมจับคู่ด้วย string เท่ากันอยู่แล้ว การใช้ค่าเดิมเป็นรหัสจึงย้ายข้อมูล
+   ได้โดยไม่กำกวมและไม่ทำให้หน้าเว็บที่ใช้อยู่พัง
+   ============================================================ */
+export const canonical_skills = pgTable("canonical_skills", {
+  id: text("id").primaryKey(),
+  name: text("name").notNull(),
+  /* ชื่ออังกฤษไว้เชื่อมกับ taxonomy สากลภายหลัง (ESCO/O*NET ไม่มีภาษาไทย) */
+  name_en: text("name_en"),
+  category: text("category"),
+  esco_id: text("esco_id"),
+  note: text("note"),
+  created_at: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+/* ทุกวิธีเขียนของสกิลเดียวกัน — สินทรัพย์ตัวจริงของการจับคู่
+   ยิ่งเก็บมาก การ map คำใหม่จากหลักสูตร/JD เข้ารหัสกลางยิ่งแม่น */
+export const skill_aliases = pgTable(
+  "skill_aliases",
+  {
+    id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
+    canonical_id: text("canonical_id").notNull().references(() => canonical_skills.id, { onDelete: "cascade" }),
+    alias: text("alias").notNull(),
+    /* คำนี้มาจากไหน — เอกสารหลักสูตร ประกาศงาน หรือทีมใส่เอง */
+    source: text("source", { enum: ["curriculum", "jd", "manual"] }).notNull().default("manual"),
+    lang: text("lang", { enum: ["th", "en"] }),
+    note: text("note"),
+    created_at: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [
+    /* กันคำซ้ำในสกิลเดียวกัน (ตัวพิมพ์เล็ก/ใหญ่ต่างกันถือว่าคนละคำ จัดการที่ชั้นค้นหา) */
+    uniqueIndex("skill_aliases_canonical_alias_idx").on(t.canonical_id, t.alias),
   ]
 );
 
@@ -99,6 +142,9 @@ export const demand = pgTable(
     level: text("level", { enum: ["jr", "sr"] }).notNull(),
     skill_key: text("skill_key").notNull(),
     count: integer("count").notNull(),
+    /* ฝั่งตลาดงานผูกกับสกิลกลางตัวเดียวกับฝั่งหลักสูตร — จุดที่ทำให้
+       "SQL" ในประกาศงาน กับ "การจัดการฐานข้อมูล" ในหลักสูตร นับเป็นสกิลเดียวกันได้ */
+    canonical_id: text("canonical_id").references(() => canonical_skills.id, { onDelete: "set null" }),
   },
   (t) => [
     uniqueIndex("demand_role_level_skill_idx").on(t.role_id, t.level, t.skill_key),

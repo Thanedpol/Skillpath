@@ -1,15 +1,16 @@
 import Link from "next/link";
 import { eq } from "drizzle-orm";
 import { db } from "@/lib/db";
-import { courses as coursesT, demand as demandT, faculties as facultiesT, feedback as feedbackT, majors as majorsT, roles as rolesT, skills as skillsT, universities as universitiesT } from "@/lib/db/schema";
+import { canonical_skills as canonicalT, courses as coursesT, demand as demandT, faculties as facultiesT, feedback as feedbackT, majors as majorsT, roles as rolesT, skills as skillsT, universities as universitiesT } from "@/lib/db/schema";
 
 export default async function AdminHomePage() {
-  const [universities, faculties, majors, courses, skills, roles, demand, feedback, feedbackUp] = await Promise.all([
+  const [universities, faculties, majors, courses, skills, canonical, roles, demand, feedback, feedbackUp] = await Promise.all([
     db.$count(universitiesT),
     db.$count(facultiesT),
     db.$count(majorsT),
     db.$count(coursesT),
     db.$count(skillsT),
+    db.$count(canonicalT),
     db.$count(rolesT),
     db.$count(demandT),
     db.$count(feedbackT),
@@ -45,6 +46,10 @@ export default async function AdminHomePage() {
         <Link href="/admin/skills" className="admin-card" style={{ textDecoration: "none", color: "inherit" }}>
           <div className="n">{skills}</div>
           <div className="l">ทักษะ</div>
+        </Link>
+        <Link href="/admin/canonical-skills" className="admin-card" style={{ textDecoration: "none", color: "inherit" }}>
+          <div className="n">{canonical}</div>
+          <div className="l">สกิลกลาง</div>
         </Link>
         <Link href="/admin/roles" className="admin-card" style={{ textDecoration: "none", color: "inherit" }}>
           <div className="n">{roles}</div>
