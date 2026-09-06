@@ -191,7 +191,17 @@ export default function OnboardingPage() {
                 type="button"
                 className="choice"
                 aria-pressed={draft.major === CUSTOM_MAJOR_ID}
-                onClick={() => setShowCustomMajor(true)}
+                onClick={() => {
+                  // ทำเครื่องหมายว่าเลือกอันนี้อยู่ทันทีที่กด ไม่ต้องรอให้พิมพ์ก่อน
+                  // ไม่งั้นสาขาสำเร็จรูปที่เลือกไว้ก่อนหน้าจะยังไฮไลต์ค้าง ดูไม่ออกว่าใช้อันไหนอยู่
+                  setShowCustomMajor(true);
+                  setDraft((d) => ({
+                    ...d,
+                    major: CUSTOM_MAJOR_ID,
+                    overrides: {},
+                    customMajor: customMajorFilled ? customMajor : undefined,
+                  }));
+                }}
               >
                 <span className="cname">ไม่มีสาขาของฉัน — กรอกเอง</span>
                 <span className="cnote">
@@ -285,8 +295,17 @@ export default function OnboardingPage() {
               </div>
             ) : null}
             <div className="wizfoot">
-              <span />
-              <button className="cta" type="button" disabled={!draft.major} onClick={() => goTo(2)}>
+              {isCustom && !customMajorFilled ? (
+                <span className="wizhint">กรอกอย่างน้อย 1 ช่องด้านบน หรือเลือกสาขาจากรายการ</span>
+              ) : (
+                <span />
+              )}
+              <button
+                className="cta"
+                type="button"
+                disabled={!draft.major || (isCustom && !customMajorFilled)}
+                onClick={() => goTo(2)}
+              >
                 ถัดไป →
               </button>
             </div>
@@ -329,7 +348,14 @@ export default function OnboardingPage() {
                 type="button"
                 className="choice"
                 aria-pressed={draft.goalRole === CUSTOM_ROLE_ID}
-                onClick={() => setShowCustomRole(true)}
+                onClick={() => {
+                  setShowCustomRole(true);
+                  setDraft((d) => ({
+                    ...d,
+                    goalRole: CUSTOM_ROLE_ID,
+                    customRole: customRole.trim() ? customRole : undefined,
+                  }));
+                }}
               >
                 <span className="cname">อาชีพอื่น — พิมพ์เอง</span>
                 <span className="cnote">
@@ -379,7 +405,18 @@ export default function OnboardingPage() {
               <button className="back" type="button" onClick={() => goTo(1)}>
                 ← ย้อนกลับ
               </button>
-              <button className="cta" type="button" onClick={() => goTo(3)}>
+              <button
+                className="cta"
+                type="button"
+                onClick={() => {
+                  // เลือก "พิมพ์เอง" ไว้แต่ไม่ได้พิมพ์ = ถือว่ายังไม่แน่ใจ (อาชีพไม่บังคับ)
+                  if (draft.goalRole === CUSTOM_ROLE_ID && !customRole.trim()) {
+                    setShowCustomRole(false);
+                    setDraft((d) => ({ ...d, goalRole: null, customRole: undefined }));
+                  }
+                  goTo(3);
+                }}
+              >
                 ถัดไป →
               </button>
             </div>
