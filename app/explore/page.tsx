@@ -7,7 +7,7 @@ import Nav from "@/components/Nav";
 import Drawer from "@/components/Drawer";
 import TrustPanel from "@/components/TrustPanel";
 import { COURSES_BY_MAJOR, DEMAND, MAJORS, MIN_POSTS, POSTS, ROLES, SK_BY_MAJOR, STATE, postKeyFor, schoolLabel, tally } from "@/lib/data";
-import { getSkillState, isCustomMajor, roleCoverage, route as computeRoute, useProfile } from "@/lib/profile";
+import { coverageRevealHeadline, getSkillState, isCustomMajor, roleCoverage, route as computeRoute, useProfile } from "@/lib/profile";
 import type { DemandPair, Profile, SkillResolved } from "@/lib/types";
 
 type Level = "jr" | "sr";
@@ -269,6 +269,9 @@ function ExploreInner() {
                     <div className="headrow">
                       <div>
                         <h1>{role.name}</h1>
+                        {hasProfile && !usingCustomMajor && cov !== null ? (
+                          <p className="reveal">{coverageRevealHeadline(cov, role.name)}</p>
+                        ) : null}
                         <div className="sub">
                           <span className="mono">{role.posts.toLocaleString()}</span> ประกาศงาน ·{" "}
                           {cov === null ? "ยังประเมินความครอบคลุมไม่ได้" : (
@@ -569,7 +572,9 @@ function PlanBody({ role, R, profile, onOpen }: {
             <span className="stagepct mono">ถึงตรงนี้ {reach.out}%</span>
           </div>
           <p className="stagesub">
-            {R.out.length ? "ไม่มีวิชาไหนสอน แต่ยังปิดได้ก่อนจบ ถ้าลงมือทำเอง" : "ไม่มีทักษะนอกหลักสูตรที่ปรากฏถึง 25% ของประกาศ"}
+            {R.out.length
+              ? `อีกนิดเดียว! ${R.out.length} ทักษะนี้ไม่มีวิชาไหนสอนตรงๆ แต่ปิดได้เองก่อนสมัครงานจริง ไม่ต้องรอเทอมหน้า`
+              : "ไม่มีทักษะนอกหลักสูตรที่ปรากฏถึง 25% ของประกาศ"}
           </p>
           {R.out.map(([k, n]) => {
             const m = getSkillState(k, profile);
@@ -579,7 +584,9 @@ function PlanBody({ role, R, profile, onOpen }: {
                   <span className="itemname">{k}</span>
                   <span className="chip">{Math.round((n / R.denom) * 100)}% ของประกาศ</span>
                 </div>
-                <div className="why">{m.proof || "ประกาศระบุทักษะนี้บ่อย แต่ไม่มีรายวิชาไหนในหลักสูตรครอบคลุม"}</div>
+                <div className="why">
+                  {m.proof || "ตลาดงานถามหาบ่อย แต่ไม่มีวิชาไหนในหลักสูตรสอนตรงๆ — ปิดเองได้เลย ไม่ต้องรอวิชาไหน"}
+                </div>
                 {m.act ? (
                   <div className="act">
                     <b>ทำ:</b>
@@ -628,7 +635,8 @@ function PlanBody({ role, R, profile, onOpen }: {
           <p className="stagesub">
             {R.stuck.length ? (
               <>
-                <b className="mono">{P.stuck}%</b> สุดท้ายที่การเรียนเพิ่มไม่ช่วย — ต้องได้จากการอยู่ในงานจริงเท่านั้น
+                ไม่ใช่เพราะคุณขาดอะไร — อีก <b className="mono">{P.stuck}%</b> นี้ไม่มีห้องเรียนไหนสอนให้ได้จริงๆ
+                ต้องเจอในงานจริงเท่านั้น เก็บไว้เป็นสิ่งที่รู้ล่วงหน้าก็พอ
               </>
             ) : (
               "ทักษะทั้งหมดของตำแหน่งนี้ปิดได้ก่อนจบ ซึ่งพบไม่บ่อย"

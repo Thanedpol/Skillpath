@@ -9,6 +9,7 @@ import {
   CUSTOM_MAJOR_ID,
   CUSTOM_ROLE_ID,
   DEFAULT_PROFILE,
+  coverageRevealHeadline,
   loadProfile,
   roleCoverage,
   saveProfile,
@@ -545,17 +546,25 @@ export default function OnboardingPage() {
                 ) : headline ? (
                   <div className="trustband" style={{ marginTop: 20 }}>
                     <div className="tb-txt">
-                      <h3>{goal ? "เป้าหมายของคุณตอนนี้" : "ตำแหน่งที่ใกล้เคียงคุณที่สุดตอนนี้"}</h3>
+                      <h3>
+                        {headline.cov !== null
+                          ? coverageRevealHeadline(headline.cov, headline.r.name)
+                          : goal
+                          ? "เป้าหมายของคุณตอนนี้"
+                          : "ตำแหน่งที่ใกล้เคียงคุณที่สุดตอนนี้"}
+                      </h3>
                       <p>
-                        <b style={{ color: "#fff" }}>{headline.r.name}</b> — ความครอบคลุมของคุณ{" "}
                         {headline.cov === null ? (
-                          "ยังประเมินไม่ได้ (ข้อมูลน้อยกว่าเกณฑ์)"
+                          <>
+                            ยังประเมินความครอบคลุมของ <b style={{ color: "#fff" }}>{headline.r.name}</b> ไม่ได้
+                            (ข้อมูลน้อยกว่าเกณฑ์)
+                          </>
                         ) : (
-                          <b className="mono" style={{ color: "#fff" }}>
-                            {headline.cov}%
-                          </b>
-                        )}{" "}
-                        จากรายวิชาที่เรียนจบและกำลังเรียน คำนวณจากประกาศงานระดับ junior จริง {headline.r.jrPosts} รายการ
+                          <>
+                            คำนวณจากรายวิชาที่เรียนจบและกำลังเรียน เทียบกับประกาศงานระดับ junior จริง{" "}
+                            {headline.r.jrPosts} รายการ
+                          </>
+                        )}
                       </p>
                     </div>
                     <Link className="cta" href={`/explore?role=${headline.r.id}`}>

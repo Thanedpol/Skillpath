@@ -212,6 +212,11 @@ h1,h2,h3,.display{font-family:var(--font-display),var(--font-body),sans-serif;le
 }
 .rolehead h1{font-size:26px;font-weight:700;letter-spacing:-.03em}
 .rolehead .sub{font-size:13px;color:var(--muted);margin-top:5px}
+/* ข้อความ "รู้ตัวไหมว่า..." — จุดที่ต้องเด่นกว่าตัวเลขธรรมดา ให้ความรู้สึกเหมือนมีคนบอกข่าวดี */
+.reveal{
+  font-family:var(--font-display),sans-serif;font-weight:600;font-size:16px;
+  color:var(--accent);margin-top:6px;line-height:1.4;text-wrap:balance;
+}
 .headrow{display:flex;align-items:flex-end;gap:16px;flex-wrap:wrap}
 .headrow .cta{margin-left:auto}
 
@@ -294,7 +299,7 @@ h1,h2,h3,.display{font-family:var(--font-display),var(--font-body),sans-serif;le
 .m-next{background:var(--accent)}
 .m-out{background:var(--accent-2)}
 .m-opt{background:var(--track-bg)}
-.m-stuck{background:repeating-linear-gradient(135deg,var(--rust) 0 3px,var(--rust-mid) 3px 6px)}
+.m-stuck{background:repeating-linear-gradient(135deg,var(--ink-soft) 0 3px,var(--rule-hover) 3px 6px)}
 .meterkeys{display:flex;flex-wrap:wrap;gap:6px 16px;margin-top:11px;font-size:11.5px;color:var(--muted)}
 .meterkeys span{display:flex;align-items:center;gap:6px}
 .meterkeys .k{width:10px;height:10px;border-radius:3px;flex:none;border:1px solid rgba(23,18,48,.08)}
@@ -317,7 +322,7 @@ h1,h2,h3,.display{font-family:var(--font-display),var(--font-body),sans-serif;le
 .s-now  .node{background:linear-gradient(90deg,var(--accent) 50%,var(--paper) 50%);border-color:var(--accent)}
 .s-next .node{border-color:var(--accent)}
 .s-out  .node{border-color:var(--accent);border-style:dashed}
-.s-stuck .node{background:var(--rust);border-color:var(--rust)}
+.s-stuck .node{background:var(--ink-soft);border-color:var(--ink-soft)}
 .stagehead{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
 .stagehead h3{font-size:17px;font-weight:600;letter-spacing:-.02em}
 .stagepct{
@@ -365,7 +370,7 @@ h1,h2,h3,.display{font-family:var(--font-display),var(--font-body),sans-serif;le
   background:var(--card);border:1px solid var(--rule);border-radius:14px;
   padding:16px 18px;margin-top:12px;box-shadow:var(--shadow);
 }
-.item.alert{border-left:3px solid var(--rust)}
+.item.alert{border-left:3px solid var(--warn)}
 .item.hard{border-left:3px solid var(--ink-soft);background:var(--surface-2);box-shadow:none}
 .itemtop{display:flex;gap:12px;align-items:baseline;flex-wrap:wrap}
 .code{font-family:var(--font-mono),monospace;font-size:12.5px;color:var(--accent);font-weight:600}
