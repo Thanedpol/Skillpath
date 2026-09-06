@@ -169,11 +169,15 @@ export default function OnboardingPage() {
                   type="button"
                   className="choice"
                   aria-pressed={m.id === draft.major}
-                  onClick={() =>
+                  onClick={() => {
+                    // เลิกใช้สาขาที่กรอกเอง (ถ้ามี) — ไม่งั้นฟอร์มจะค้างแสดงข้อมูลเก่า
+                    // ทั้งที่ระบบเปลี่ยนไปใช้สาขาสำเร็จรูปนี้แล้ว
+                    setShowCustomMajor(false);
+                    setCustomMajor({ ...EMPTY_CUSTOM });
                     setDraft((d) =>
                       d.major === m.id ? d : { ...d, major: m.id, overrides: {}, customMajor: undefined }
-                    )
-                  }
+                    );
+                  }}
                 >
                   <span className="cname">{m.name}</span>
                   <span className="cnote">
@@ -307,7 +311,12 @@ export default function OnboardingPage() {
                   type="button"
                   className="choice"
                   aria-pressed={draft.goalRole === r.id}
-                  onClick={() => setDraft((d) => ({ ...d, goalRole: r.id }))}
+                  onClick={() => {
+                    // เลิกใช้อาชีพที่พิมพ์เอง (ถ้ามี) — เหตุผลเดียวกับฝั่งสาขา
+                    setShowCustomRole(false);
+                    setCustomRole("");
+                    setDraft((d) => ({ ...d, goalRole: r.id, customRole: undefined }));
+                  }}
                 >
                   <span className="cname">{r.name}</span>
                   <span className="cnote">
