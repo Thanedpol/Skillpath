@@ -5,6 +5,7 @@ import { courses as coursesT } from "@/lib/db/schema";
 import { deleteCourse } from "@/lib/actions/admin";
 import { MAJORS } from "@/lib/data";
 import DeleteButton from "../DeleteButton";
+import SearchableTable from "../SearchableTable";
 
 export default async function AdminCoursesPage() {
   const courses = await db.select().from(coursesT).orderBy(asc(coursesT.major_id), asc(coursesT.ord));
@@ -21,53 +22,51 @@ export default async function AdminCoursesPage() {
         </Link>
       </div>
 
-      <div className="admin-panel">
-        <table className="admin-table">
-          <thead>
-            <tr>
-              <th>สาขา</th>
-              <th>รหัสวิชา</th>
-              <th>ชื่อวิชา</th>
-              <th>ช่วงเวลา</th>
-              <th>ord</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody>
-            {!courses?.length ? (
+      <SearchableTable
+        placeholder="ค้นหารหัสวิชา ชื่อวิชา สาขา หรือปี/เทอม…"
+        unit="รายวิชา"
+        colSpan={6}
+        head={
+          <tr>
+            <th>สาขา</th>
+            <th>รหัสวิชา</th>
+            <th>ชื่อวิชา</th>
+            <th>ช่วงเวลา</th>
+            <th>ord</th>
+            <th></th>
+          </tr>
+        }
+        rows={courses.map((c) => {
+          const majorName = MAJORS.find((m) => m.id === c.major_id)?.name ?? c.major_id;
+          return {
+            key: `${c.major_id}/${c.code}`,
+            text: [majorName, c.major_id, c.code, c.name, c.when_label].join(" "),
+            node: (
               <tr>
-                <td colSpan={6} className="admin-empty">
-                  ยังไม่มีข้อมูล
+                <td>{majorName}</td>
+                <td className="mono">{c.code}</td>
+                <td>{c.name}</td>
+                <td>{c.when_label}</td>
+                <td className="num">{c.ord}</td>
+                <td>
+                  <div className="admin-actions">
+                    <Link
+                      href={`/admin/courses/${encodeURIComponent(c.major_id)}/${encodeURIComponent(c.code)}`}
+                      className="admin-btn"
+                    >
+                      แก้ไข
+                    </Link>
+                    <DeleteButton
+                      action={deleteCourse.bind(null, c.major_id, c.code)}
+                      confirmText={`ลบรายวิชา "${c.code}" ใช่ไหม?`}
+                    />
+                  </div>
                 </td>
               </tr>
-            ) : (
-              courses.map((c) => (
-                <tr key={`${c.major_id}/${c.code}`}>
-                  <td>{MAJORS.find((m) => m.id === c.major_id)?.name ?? c.major_id}</td>
-                  <td className="mono">{c.code}</td>
-                  <td>{c.name}</td>
-                  <td>{c.when_label}</td>
-                  <td className="num">{c.ord}</td>
-                  <td>
-                    <div className="admin-actions">
-                      <Link
-                        href={`/admin/courses/${encodeURIComponent(c.major_id)}/${encodeURIComponent(c.code)}`}
-                        className="admin-btn"
-                      >
-                        แก้ไข
-                      </Link>
-                      <DeleteButton
-                        action={deleteCourse.bind(null, c.major_id, c.code)}
-                        confirmText={`ลบรายวิชา "${c.code}" ใช่ไหม?`}
-                      />
-                    </div>
-                  </td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
+            ),
+          };
+        })}
+      />
     </>
   );
 }

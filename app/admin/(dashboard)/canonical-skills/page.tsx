@@ -3,6 +3,7 @@ import { sql } from "drizzle-orm";
 import { db } from "@/lib/db";
 import { deleteCanonicalSkill } from "@/lib/actions/admin";
 import DeleteButton from "../DeleteButton";
+import SearchableTable from "../SearchableTable";
 
 /* ============================================================
    ชุดรหัสสกิลกลาง — หน้ารวม
@@ -115,66 +116,55 @@ export default async function CanonicalSkillsPage({
       </div>
       <p className="admin-filterhint">{active.hint}</p>
 
-      <div className="admin-panel">
-        <table className="admin-table">
-          <thead>
+      <SearchableTable
+        placeholder="ค้นหาชื่อสกิล ชื่ออังกฤษ หมวด หรือรหัส ESCO…"
+        unit="สกิล"
+        colSpan={7}
+        emptyLabel="ไม่มีสกิลที่เข้าเงื่อนไขนี้"
+        head={
+          <tr>
+            <th>สกิล</th>
+            <th>หมวด</th>
+            <th>สาขาที่สอน</th>
+            <th>อาชีพที่ต้องการ</th>
+            <th>ประกาศ junior</th>
+            <th>คำที่ใช้เรียก</th>
+            <th></th>
+          </tr>
+        }
+        rows={sorted.map((r) => ({
+          key: r.id,
+          text: [r.name, r.name_en, r.category, r.esco_id, r.id].filter(Boolean).join(" "),
+          node: (
             <tr>
-              <th>สกิล</th>
-              <th>หมวด</th>
-              <th>สาขาที่สอน</th>
-              <th>อาชีพที่ต้องการ</th>
-              <th>ประกาศ junior</th>
-              <th>คำที่ใช้เรียก</th>
-              <th></th>
+              <td>
+                <b>{r.name}</b>
+                {r.name_en ? (
+                  <div style={{ fontSize: 11.5, color: "var(--muted)", marginTop: 3 }}>{r.name_en}</div>
+                ) : null}
+              </td>
+              <td>{r.category || "—"}</td>
+              <td className="num">
+                {r.majors === 0 && r.roles > 0 ? <span className="aliaschip">ไม่มีสาขาสอน</span> : r.majors}
+              </td>
+              <td className="num">{r.roles}</td>
+              <td className="num">{r.jr_posts ? r.jr_posts.toLocaleString() : "—"}</td>
+              <td className="num">{r.aliases}</td>
+              <td>
+                <div className="admin-actions">
+                  <Link href={`/admin/canonical-skills/${encodeURIComponent(r.id)}`} className="admin-btn">
+                    แก้ไข / คำเรียก
+                  </Link>
+                  <DeleteButton
+                    action={deleteCanonicalSkill.bind(null, r.id)}
+                    confirmText={`ลบสกิลกลาง "${r.name}" ใช่ไหม? ทักษะในหลักสูตรและความต้องการตลาดจะไม่ถูกลบ แต่จะกลายเป็นยังไม่ผูกรหัสกลาง`}
+                  />
+                </div>
+              </td>
             </tr>
-          </thead>
-          <tbody>
-            {!sorted.length ? (
-              <tr>
-                <td colSpan={7} className="admin-empty">
-                  ไม่มีสกิลที่เข้าเงื่อนไขนี้
-                </td>
-              </tr>
-            ) : (
-              sorted.map((r) => (
-                <tr key={r.id}>
-                  <td>
-                    <b>{r.name}</b>
-                    {r.name_en ? (
-                      <div style={{ fontSize: 11.5, color: "var(--muted)", marginTop: 3 }}>{r.name_en}</div>
-                    ) : null}
-                  </td>
-                  <td>{r.category || "—"}</td>
-                  <td className="num">
-                    {r.majors === 0 && r.roles > 0 ? (
-                      <span className="aliaschip">ไม่มีสาขาสอน</span>
-                    ) : (
-                      r.majors
-                    )}
-                  </td>
-                  <td className="num">{r.roles}</td>
-                  <td className="num">{r.jr_posts ? r.jr_posts.toLocaleString() : "—"}</td>
-                  <td className="num">{r.aliases}</td>
-                  <td>
-                    <div className="admin-actions">
-                      <Link
-                        href={`/admin/canonical-skills/${encodeURIComponent(r.id)}`}
-                        className="admin-btn"
-                      >
-                        แก้ไข / คำเรียก
-                      </Link>
-                      <DeleteButton
-                        action={deleteCanonicalSkill.bind(null, r.id)}
-                        confirmText={`ลบสกิลกลาง "${r.name}" ใช่ไหม? ทักษะในหลักสูตรและความต้องการตลาดจะไม่ถูกลบ แต่จะกลายเป็นยังไม่ผูกรหัสกลาง`}
-                      />
-                    </div>
-                  </td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
+          ),
+        }))}
+      />
     </>
   );
 }

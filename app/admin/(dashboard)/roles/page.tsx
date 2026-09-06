@@ -4,6 +4,7 @@ import { db } from "@/lib/db";
 import { roles as rolesT } from "@/lib/db/schema";
 import { deleteRole } from "@/lib/actions/admin";
 import DeleteButton from "../DeleteButton";
+import SearchableTable from "../SearchableTable";
 
 export default async function AdminRolesPage() {
   const roles = await db.select().from(rolesT).orderBy(asc(rolesT.fit));
@@ -20,50 +21,48 @@ export default async function AdminRolesPage() {
         </Link>
       </div>
 
-      <div className="admin-panel">
-        <table className="admin-table">
-          <thead>
+      <SearchableTable
+        placeholder="ค้นหาชื่ออาชีพ หรือรหัส…"
+        unit="อาชีพ"
+        colSpan={5}
+        head={
+          <tr>
+            <th>อาชีพ</th>
+            <th>ประกาศทั้งหมด</th>
+            <th>ระดับ junior</th>
+            <th>fit</th>
+            <th></th>
+          </tr>
+        }
+        rows={roles.map((r) => ({
+          key: r.id,
+          text: [r.name, r.id].join(" "),
+          node: (
             <tr>
-              <th>อาชีพ</th>
-              <th>ประกาศทั้งหมด</th>
-              <th>ระดับ junior</th>
-              <th>fit</th>
-              <th></th>
+              <td>
+                <b>{r.name}</b>
+                <div className="mono" style={{ fontSize: 11.5, color: "var(--muted)" }}>
+                  {r.id}
+                </div>
+              </td>
+              <td className="num">{r.posts.toLocaleString()}</td>
+              <td className="num">{r.jr_posts.toLocaleString()}</td>
+              <td className="num">{r.fit}</td>
+              <td>
+                <div className="admin-actions">
+                  <Link href={`/admin/roles/${r.id}`} className="admin-btn">
+                    แก้ไข / ความต้องการทักษะ
+                  </Link>
+                  <DeleteButton
+                    action={deleteRole.bind(null, r.id)}
+                    confirmText={`ลบอาชีพ "${r.name}" ใช่ไหม? (ความต้องการทักษะที่ผูกไว้จะถูกลบด้วย)`}
+                  />
+                </div>
+              </td>
             </tr>
-          </thead>
-          <tbody>
-            {!roles?.length ? (
-              <tr>
-                <td colSpan={5} className="admin-empty">
-                  ยังไม่มีข้อมูล
-                </td>
-              </tr>
-            ) : (
-              roles.map((r) => (
-                <tr key={r.id}>
-                  <td>
-                    <b>{r.name}</b>
-                    <div className="mono" style={{ fontSize: 11.5, color: "var(--muted)" }}>
-                      {r.id}
-                    </div>
-                  </td>
-                  <td className="num">{r.posts.toLocaleString()}</td>
-                  <td className="num">{r.jr_posts.toLocaleString()}</td>
-                  <td className="num">{r.fit}</td>
-                  <td>
-                    <div className="admin-actions">
-                      <Link href={`/admin/roles/${r.id}`} className="admin-btn">
-                        แก้ไข / ความต้องการทักษะ
-                      </Link>
-                      <DeleteButton action={deleteRole.bind(null, r.id)} confirmText={`ลบอาชีพ "${r.name}" ใช่ไหม? (ความต้องการทักษะที่ผูกไว้จะถูกลบด้วย)`} />
-                    </div>
-                  </td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
+          ),
+        }))}
+      />
     </>
   );
 }

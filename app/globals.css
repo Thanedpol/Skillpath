@@ -590,7 +590,7 @@ h1,h2,h3,.display{font-family:var(--font-display),var(--font-body),sans-serif;le
 .choice .cnote{font-size:12px;color:var(--muted);margin-top:5px;line-height:1.45}
 .choice.soon{cursor:not-allowed;opacity:.55}
 .choice.soon:hover{border-color:var(--rule);transform:none}
-.soonchip{font-size:9.5px;text-transform:uppercase;letter-spacing:.06em;background:var(--surface-2);color:var(--muted);border:1px solid var(--rule);border-radius:99px;padding:1px 7px;margin-left:6px;font-family:var(--font-mono),monospace;vertical-align:middle}
+.soonchip{font-size:9.5px;text-transform:uppercase;letter-spacing:.06em;background:var(--surface-2);color:var(--muted);border:1px solid var(--rule);border-radius:99px;padding:1px 7px;margin-left:6px;font-family:var(--font-mono),monospace;vertical-align:middle;white-space:nowrap;display:inline-block}
 @media(max-width:560px){.choicegrid{grid-template-columns:1fr}}
 
 .termgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:26px}
@@ -851,6 +851,44 @@ h1,h2,h3,.display{font-family:var(--font-display),var(--font-body),sans-serif;le
 .admin-filter:hover{border-color:var(--rule-hover);color:var(--ink)}
 .admin-filter[aria-current="true"]{background:var(--accent-soft);border-color:var(--accent);color:var(--accent);font-weight:600}
 .admin-filterhint{font-size:12px;color:var(--muted);margin:0 0 18px 2px}
+
+/* แถบค้นหาเหนือตาราง — ติดบนสุดขณะเลื่อน เพื่อให้พิมพ์แก้คำค้นได้
+   โดยไม่ต้องเลื่อนกลับขึ้นไปหาช่อง (จุดประสงค์หลักของฟีเจอร์นี้) */
+.admin-searchbar{
+  position:sticky;top:0;z-index:5;background:var(--paper);
+  display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:10px 0 12px;
+}
+.admin-searchinput{
+  flex:1;min-width:220px;font-family:inherit;font-size:13.5px;padding:10px 14px;border-radius:12px;
+  border:1px solid var(--rule);background:var(--card);color:var(--ink);
+}
+.admin-searchinput:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+.admin-searchinput::placeholder{color:var(--muted)}
+.admin-searchcount{font-size:12px;color:var(--muted);white-space:nowrap}
+.admin-searchcount b{color:var(--ink)}
+.admin-searchcount kbd{
+  font-family:var(--font-mono),ui-monospace,monospace;font-size:11px;padding:1px 5px;border-radius:5px;
+  border:1px solid var(--rule);background:var(--card);
+}
+
+/* ผลค้นหารวมในหน้าภาพรวม — รายการกดแล้วไปหน้าที่แก้ได้ทันที */
+.admin-globalsearch{margin-bottom:22px}
+.admin-results{list-style:none;margin:0;padding:0;max-height:420px;overflow-y:auto}
+.admin-results li + li{border-top:1px solid var(--rule)}
+.admin-results a{
+  display:flex;align-items:center;gap:14px;padding:11px 20px;text-decoration:none;color:inherit;
+}
+.admin-results a:hover{background:var(--surface-2)}
+.admin-resulttype{
+  flex:none;width:88px;font-family:var(--font-mono),ui-monospace,monospace;font-size:10.5px;
+  letter-spacing:.05em;text-transform:uppercase;color:var(--muted);
+}
+.admin-resultmain{flex:1;min-width:0;font-size:13px;display:flex;flex-direction:column;gap:2px}
+.admin-resultmain b{font-weight:600}
+.admin-resultsub{font-size:11.5px;color:var(--muted)}
+.admin-resultgo{flex:none;color:var(--muted);font-size:14px}
+.admin-results a:hover .admin-resultgo{color:var(--accent)}
+.admin-resultmore{padding:11px 20px;font-size:12px;color:var(--muted);border-top:1px solid var(--rule)}
 
 .admin-formgrid{padding:18px 20px;display:grid;grid-template-columns:repeat(2,1fr);gap:14px 18px}
 .admin-formgrid.wide{grid-template-columns:1fr}

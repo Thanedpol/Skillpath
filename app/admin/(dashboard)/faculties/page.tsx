@@ -4,6 +4,7 @@ import { db } from "@/lib/db";
 import { faculties as facultiesT, majors as majorsT, universities as universitiesT } from "@/lib/db/schema";
 import { deleteFaculty } from "@/lib/actions/admin";
 import DeleteButton from "../DeleteButton";
+import SearchableTable from "../SearchableTable";
 
 export default async function AdminFacultiesPage() {
   const rows = await db
@@ -32,53 +33,48 @@ export default async function AdminFacultiesPage() {
         </Link>
       </div>
 
-      <div className="admin-panel">
-        <table className="admin-table">
-          <thead>
+      <SearchableTable
+        placeholder="ค้นหาชื่อคณะ มหาวิทยาลัย วิทยาเขต หรือรหัส…"
+        unit="คณะ"
+        colSpan={5}
+        head={
+          <tr>
+            <th>คณะ</th>
+            <th>มหาวิทยาลัย</th>
+            <th>วิทยาเขต</th>
+            <th>จำนวนสาขา</th>
+            <th></th>
+          </tr>
+        }
+        rows={rows.map((f) => ({
+          key: f.id,
+          text: [f.name, f.universityName, f.campus, f.id].filter(Boolean).join(" "),
+          node: (
             <tr>
-              <th>คณะ</th>
-              <th>มหาวิทยาลัย</th>
-              <th>วิทยาเขต</th>
-              <th>จำนวนสาขา</th>
-              <th></th>
+              <td>
+                <b>{f.name}</b>
+                <div className="mono" style={{ fontSize: 11.5, color: "var(--muted)" }}>
+                  {f.id}
+                </div>
+              </td>
+              <td>{f.universityName}</td>
+              <td>{f.campus || "—"}</td>
+              <td className="num">{f.majorCount}</td>
+              <td>
+                <div className="admin-actions">
+                  <Link href={`/admin/faculties/${encodeURIComponent(f.id)}`} className="admin-btn">
+                    แก้ไข
+                  </Link>
+                  <DeleteButton
+                    action={deleteFaculty.bind(null, f.id)}
+                    confirmText={`ลบ "${f.name}" ใช่ไหม? สาขา รายวิชา และทักษะทั้งหมดที่อยู่ใต้คณะนี้จะถูกลบไปด้วย`}
+                  />
+                </div>
+              </td>
             </tr>
-          </thead>
-          <tbody>
-            {!rows.length ? (
-              <tr>
-                <td colSpan={5} className="admin-empty">
-                  ยังไม่มีข้อมูล
-                </td>
-              </tr>
-            ) : (
-              rows.map((f) => (
-                <tr key={f.id}>
-                  <td>
-                    <b>{f.name}</b>
-                    <div className="mono" style={{ fontSize: 11.5, color: "var(--muted)" }}>
-                      {f.id}
-                    </div>
-                  </td>
-                  <td>{f.universityName}</td>
-                  <td>{f.campus || "—"}</td>
-                  <td className="num">{f.majorCount}</td>
-                  <td>
-                    <div className="admin-actions">
-                      <Link href={`/admin/faculties/${encodeURIComponent(f.id)}`} className="admin-btn">
-                        แก้ไข
-                      </Link>
-                      <DeleteButton
-                        action={deleteFaculty.bind(null, f.id)}
-                        confirmText={`ลบ "${f.name}" ใช่ไหม? สาขา รายวิชา และทักษะทั้งหมดที่อยู่ใต้คณะนี้จะถูกลบไปด้วย`}
-                      />
-                    </div>
-                  </td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
+          ),
+        }))}
+      />
     </>
   );
 }
