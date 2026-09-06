@@ -10,6 +10,11 @@ import type { DemandPair, Profile, RouteResult, SkillResolved } from "./types";
 
 export const PROFILE_KEY = "skillpath.profile.v1";
 
+/* แถบบนสุด (Nav) อยู่ใน layout จึงไม่ถูก mount ใหม่ตอนเปลี่ยนหน้า —
+   ถ้าไม่ประกาศให้รู้ว่าโปรไฟล์เปลี่ยน มันจะค้างแสดงสาขา/เป้าหมายเดิม
+   ทั้งที่ผู้ใช้เพิ่งบันทึกค่าใหม่ไป เหตุการณ์นี้คือตัวปลุกทุกที่ที่ใช้ useProfile */
+const PROFILE_EVENT = "skillpath:profile-changed";
+
 /* id พิเศษสำหรับสาขา/อาชีพที่ผู้ใช้พิมพ์เอง — จงใจใช้รูปแบบที่ชนกับ id จริงไม่ได้ */
 export const CUSTOM_MAJOR_ID = "__custom__";
 export const CUSTOM_ROLE_ID = "__custom_role__";
@@ -45,6 +50,7 @@ export function isCustomMajor(profile: Profile): boolean {
 export function saveProfile(p: Profile) {
   if (typeof window === "undefined") return;
   localStorage.setItem(PROFILE_KEY, JSON.stringify(p));
+  window.dispatchEvent(new Event(PROFILE_EVENT));
 }
 
 export function hasSavedProfile(): boolean {
@@ -187,8 +193,16 @@ export function useProfile() {
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
-    setProfileState(loadProfile());
+    const sync = () => setProfileState(loadProfile());
+    sync();
     setReady(true);
+    /* PROFILE_EVENT = บันทึกจากแท็บนี้ · storage = บันทึกจากแท็บอื่น */
+    window.addEventListener(PROFILE_EVENT, sync);
+    window.addEventListener("storage", sync);
+    return () => {
+      window.removeEventListener(PROFILE_EVENT, sync);
+      window.removeEventListener("storage", sync);
+    };
   }, []);
 
   const save = useCallback((p: Profile) => {
