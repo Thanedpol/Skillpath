@@ -5,8 +5,19 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Nav from "@/components/Nav";
 import { COURSES_BY_MAJOR, MAJORS, MIN_POSTS, ROLES, TERMS, schoolLabel, skillsForCourse } from "@/lib/data";
-import { DEFAULT_PROFILE, loadProfile, roleCoverage, saveProfile } from "@/lib/profile";
-import type { Course, Profile } from "@/lib/types";
+import {
+  CUSTOM_MAJOR_ID,
+  CUSTOM_ROLE_ID,
+  DEFAULT_PROFILE,
+  loadProfile,
+  roleCoverage,
+  saveProfile,
+} from "@/lib/profile";
+import { getClientId } from "@/lib/client-id";
+import { submitMajorRequest, submitRoleRequest } from "@/lib/actions/requests";
+import type { Course, CustomMajor, Profile } from "@/lib/types";
+
+const EMPTY_CUSTOM: CustomMajor = { university: "", faculty: "", program: "", major: "" };
 
 export default function OnboardingPage() {
   const router = useRouter();
@@ -17,6 +28,10 @@ export default function OnboardingPage() {
   const [advOpen, setAdvOpen] = useState(false);
   const [showToast, setShowToast] = useState(false);
   const [showPending, setShowPending] = useState(false);
+  const [showCustomMajor, setShowCustomMajor] = useState(false);
+  const [customMajor, setCustomMajor] = useState<CustomMajor>({ ...EMPTY_CUSTOM });
+  const [showCustomRole, setShowCustomRole] = useState(false);
+  const [customRole, setCustomRole] = useState("");
 
   /* สาขาที่เลือกได้จริงคือสาขาที่มีข้อมูลรายวิชา+ทักษะแล้วเท่านั้น
      ที่เหลือมาจากทะเบียนหลักสูตรเปิด แสดงให้เห็นว่ามีอยู่จริงแต่ยังใช้ไม่ได้ */
@@ -36,7 +51,13 @@ export default function OnboardingPage() {
         goalRole: existing.goalRole || null,
         ord: existing.ord || 31,
         overrides: { ...(existing.overrides || {}) },
+        customMajor: existing.customMajor,
+        customRole: existing.customRole,
       });
+      if (existing.customMajor) setCustomMajor(existing.customMajor);
+      if (existing.customRole) setCustomRole(existing.customRole);
+      if (existing.major === CUSTOM_MAJOR_ID) setShowCustomMajor(true);
+      if (existing.goalRole === CUSTOM_ROLE_ID) setShowCustomRole(true);
     }
   }, []);
 
@@ -47,10 +68,55 @@ export default function OnboardingPage() {
 
   function handleSave() {
     saveProfile(draft);
+
+    /* ส่งคำขอขึ้นฐานข้อมูลแบบ best-effort — ถ้าเน็ตหลุดหรือ DB ล่ม
+       โปรไฟล์ในเครื่องบันทึกไปแล้ว ผู้ใช้จึงไม่ติดค้าง */
+    const clientId = getClientId();
+    if (draft.major === CUSTOM_MAJOR_ID && draft.customMajor) {
+      submitMajorRequest(draft.customMajor, clientId).then(
+        () => {},
+        () => {}
+      );
+    }
+    if (draft.goalRole === CUSTOM_ROLE_ID && draft.customRole) {
+      submitRoleRequest(draft.customRole, clientId).then(
+        () => {},
+        () => {}
+      );
+    }
+
     setShowToast(true);
     setTimeout(() => {
       router.push("/explore");
     }, 700);
+  }
+
+  /* ---------- สาขา/อาชีพที่พิมพ์เอง ---------- */
+  const customMajorFilled = Boolean(
+    customMajor.university.trim() || customMajor.faculty.trim() || customMajor.program.trim() || customMajor.major.trim()
+  );
+
+  function applyCustomMajor(next: CustomMajor) {
+    setCustomMajor(next);
+    const filled = Boolean(
+      next.university.trim() || next.faculty.trim() || next.program.trim() || next.major.trim()
+    );
+    setDraft((d) => ({
+      ...d,
+      major: filled ? CUSTOM_MAJOR_ID : d.major === CUSTOM_MAJOR_ID ? "" : d.major,
+      customMajor: filled ? next : undefined,
+      overrides: {},
+    }));
+  }
+
+  function applyCustomRole(value: string) {
+    setCustomRole(value);
+    const filled = Boolean(value.trim());
+    setDraft((d) => ({
+      ...d,
+      goalRole: filled ? CUSTOM_ROLE_ID : d.goalRole === CUSTOM_ROLE_ID ? null : d.goalRole,
+      customRole: filled ? value : undefined,
+    }));
   }
 
   /* ---------- step 3: courses grouped by term ord (ตามสาขาที่เลือก) ---------- */
@@ -61,6 +127,7 @@ export default function OnboardingPage() {
   });
 
   /* ---------- step 4: summary ---------- */
+  const isCustom = draft.major === CUSTOM_MAJOR_ID;
   const summaryMajor = MAJORS.find((x) => x.id === draft.major);
   const summaryTerm = TERMS.find((x) => x.ord === draft.ord);
   const overrideCount = Object.keys(draft.overrides).length;
@@ -101,7 +168,11 @@ export default function OnboardingPage() {
                   type="button"
                   className="choice"
                   aria-pressed={m.id === draft.major}
-                  onClick={() => setDraft((d) => (d.major === m.id ? d : { ...d, major: m.id, overrides: {} }))}
+                  onClick={() =>
+                    setDraft((d) =>
+                      d.major === m.id ? d : { ...d, major: m.id, overrides: {}, customMajor: undefined }
+                    )
+                  }
                 >
                   <span className="cname">{m.name}</span>
                   <span className="cnote">
@@ -110,7 +181,74 @@ export default function OnboardingPage() {
                   </span>
                 </button>
               ))}
+
+              <button
+                type="button"
+                className="choice"
+                aria-pressed={draft.major === CUSTOM_MAJOR_ID}
+                onClick={() => setShowCustomMajor(true)}
+              >
+                <span className="cname">ไม่มีสาขาของฉัน — กรอกเอง</span>
+                <span className="cnote">
+                  พิมพ์มหาวิทยาลัย คณะ หลักสูตร และสาขาของคุณเองได้ เราจะเก็บไว้เพื่อจัดลำดับว่าจะทำสาขาไหนต่อ
+                </span>
+              </button>
             </div>
+
+            {showCustomMajor ? (
+              <div className="customform">
+                <div className="customform-head">
+                  <b>กรอกสาขาของคุณเอง</b>
+                  <span>
+                    กรอกเท่าที่รู้ก็ได้ ไม่ต้องครบทุกช่อง — ระบบยังคำนวณความครอบคลุมให้ไม่ได้
+                    เพราะยังไม่มีข้อมูลรายวิชาของหลักสูตรนี้ แต่จะเก็บคำขอไว้ให้ทีมเห็น
+                  </span>
+                </div>
+                <div className="customform-grid">
+                  <div className="customfield">
+                    <label htmlFor="cm-univ">มหาวิทยาลัย</label>
+                    <input
+                      id="cm-univ"
+                      value={customMajor.university}
+                      placeholder="เช่น มหาวิทยาลัยธรรมศาสตร์"
+                      onChange={(e) => applyCustomMajor({ ...customMajor, university: e.target.value })}
+                    />
+                  </div>
+                  <div className="customfield">
+                    <label htmlFor="cm-fac">คณะ</label>
+                    <input
+                      id="cm-fac"
+                      value={customMajor.faculty}
+                      placeholder="เช่น คณะวิทยาศาสตร์และเทคโนโลยี"
+                      onChange={(e) => applyCustomMajor({ ...customMajor, faculty: e.target.value })}
+                    />
+                  </div>
+                  <div className="customfield">
+                    <label htmlFor="cm-prog">หลักสูตร</label>
+                    <input
+                      id="cm-prog"
+                      value={customMajor.program}
+                      placeholder="เช่น วิทยาศาสตรบัณฑิต"
+                      onChange={(e) => applyCustomMajor({ ...customMajor, program: e.target.value })}
+                    />
+                  </div>
+                  <div className="customfield">
+                    <label htmlFor="cm-major">สาขา</label>
+                    <input
+                      id="cm-major"
+                      value={customMajor.major}
+                      placeholder="เช่น เทคโนโลยีชีวภาพ"
+                      onChange={(e) => applyCustomMajor({ ...customMajor, major: e.target.value })}
+                    />
+                  </div>
+                </div>
+                {customMajorFilled ? (
+                  <p className="customform-note">
+                    จะบันทึกเป็นสาขาของคุณเมื่อกด &quot;บันทึกและเริ่มใช้งาน&quot; ในขั้นตอนสุดท้าย
+                  </p>
+                ) : null}
+              </div>
+            ) : null}
 
             <button className="advtoggle" type="button" onClick={() => setShowPending((v) => !v)}>
               {showPending
@@ -180,13 +318,53 @@ export default function OnboardingPage() {
               <button
                 type="button"
                 className="choice"
+                aria-pressed={draft.goalRole === CUSTOM_ROLE_ID}
+                onClick={() => setShowCustomRole(true)}
+              >
+                <span className="cname">อาชีพอื่น — พิมพ์เอง</span>
+                <span className="cnote">
+                  ไม่มีอาชีพที่คุณอยากทำในรายการ? พิมพ์ได้เลย เราเก็บไว้เพื่อดูว่าควรเพิ่มอาชีพไหนต่อ
+                </span>
+              </button>
+
+              <button
+                type="button"
+                className="choice"
                 aria-pressed={!draft.goalRole}
-                onClick={() => setDraft((d) => ({ ...d, goalRole: null }))}
+                onClick={() => {
+                  setShowCustomRole(false);
+                  setCustomRole("");
+                  setDraft((d) => ({ ...d, goalRole: null, customRole: undefined }));
+                }}
               >
                 <span className="cname">ยังไม่แน่ใจ</span>
                 <span className="cnote">สำรวจดูก่อน — ให้ระบบจัดอันดับอาชีพตามความครอบคลุมของคุณ</span>
               </button>
             </div>
+
+            {showCustomRole ? (
+              <div className="customform">
+                <div className="customform-head">
+                  <b>พิมพ์อาชีพที่คุณอยากทำ</b>
+                  <span>
+                    ระบบยังไม่มีข้อมูลประกาศงานของอาชีพนี้ จึงยังคำนวณความครอบคลุมให้ไม่ได้
+                    แต่จะเก็บไว้เป็นข้อมูลว่ามีคนต้องการ
+                  </span>
+                </div>
+                <div className="customform-grid">
+                  <div className="customfield span2">
+                    <label htmlFor="cr-name">ชื่ออาชีพ</label>
+                    <input
+                      id="cr-name"
+                      value={customRole}
+                      placeholder="เช่น นักคณิตศาสตร์ประกันภัย (Actuary)"
+                      onChange={(e) => applyCustomRole(e.target.value)}
+                    />
+                  </div>
+                </div>
+              </div>
+            ) : null}
+
             <div className="wizfoot">
               <button className="back" type="button" onClick={() => goTo(1)}>
                 ← ย้อนกลับ
@@ -224,9 +402,16 @@ export default function OnboardingPage() {
               ))}
             </div>
 
-            <button className="advtoggle" type="button" onClick={() => setAdvOpen((o) => !o)}>
-              {advOpen ? "ซ่อนรายวิชา ▴" : "ปรับแต่งรายวิชาที่เรียนแล้วเอง (ละเอียด) ▾"}
-            </button>
+            {isCustom ? (
+              <p className="customform-note" style={{ marginTop: 18 }}>
+                สาขาที่คุณกรอกเองยังไม่มีข้อมูลรายวิชาในระบบ จึงปรับรายวิชาไม่ได้ —
+                ปี/เทอมที่เลือกไว้จะถูกบันทึกไว้ใช้เมื่อข้อมูลหลักสูตรของคุณพร้อม
+              </p>
+            ) : (
+              <>
+                <button className="advtoggle" type="button" onClick={() => setAdvOpen((o) => !o)}>
+                  {advOpen ? "ซ่อนรายวิชา ▴" : "ปรับแต่งรายวิชาที่เรียนแล้วเอง (ละเอียด) ▾"}
+                </button>
             <div className={`courselist${advOpen ? "" : " hidden"}`}>
               {TERMS.filter((t) => byOrd[t.ord]).map((t) => (
                 <div className="termgroup" key={t.ord}>
@@ -259,7 +444,9 @@ export default function OnboardingPage() {
                   })}
                 </div>
               ))}
-            </div>
+                </div>
+              </>
+            )}
 
             <div className="wizfoot">
               <button className="back" type="button" onClick={() => goTo(2)}>
@@ -280,20 +467,51 @@ export default function OnboardingPage() {
               <h2>สรุปโปรไฟล์ของคุณ</h2>
               <p>ตรวจสอบก่อนบันทึก — แก้ไขได้ทุกเมื่อจากเมนู &quot;แก้ไขโปรไฟล์&quot; ด้านบนของทุกหน้า</p>
             </div>
-            {summaryMajor && summaryTerm && headline && (
+            {summaryTerm && (
               <div>
                 <div className="scopetable">
                   <div className="scoperow">
                     <div className="sc-lbl">สาขา</div>
                     <div className="sc-val">
-                      <b>{summaryMajor.name}</b>
-                      <br />
-                      {schoolLabel(summaryMajor.id)}
+                      {isCustom && draft.customMajor ? (
+                        <>
+                          <b>{draft.customMajor.major || draft.customMajor.program || "สาขาที่กรอกเอง"}</b>
+                          <br />
+                          {[draft.customMajor.faculty, draft.customMajor.university].filter(Boolean).join(" · ") ||
+                            "ไม่ได้ระบุคณะ/มหาวิทยาลัย"}
+                          <br />
+                          <span style={{ fontSize: 12, color: "var(--muted)" }}>
+                            คุณกรอกเอง — ยังไม่มีข้อมูลรายวิชาของหลักสูตรนี้ในระบบ
+                          </span>
+                        </>
+                      ) : summaryMajor ? (
+                        <>
+                          <b>{summaryMajor.name}</b>
+                          <br />
+                          {schoolLabel(summaryMajor.id)}
+                        </>
+                      ) : (
+                        "ยังไม่ได้เลือกสาขา"
+                      )}
                     </div>
                   </div>
                   <div className="scoperow">
                     <div className="sc-lbl">เป้าหมายอาชีพ</div>
-                    <div className="sc-val">{goal ? <b>{goal.name}</b> : "ยังไม่แน่ใจ — สำรวจดูก่อน"}</div>
+                    <div className="sc-val">
+                      {draft.goalRole === CUSTOM_ROLE_ID && draft.customRole ? (
+                        <>
+                          <b>{draft.customRole}</b>
+                          <br />
+                          <span style={{ fontSize: 12, color: "var(--muted)" }}>
+                            คุณกรอกเอง — ยังไม่มีข้อมูลประกาศงานของอาชีพนี้
+                          </span>
+                        </>
+                      ) : goal ? (
+                        <b>{goal.name}</b>
+                      ) : (
+                        "ยังไม่แน่ใจ — สำรวจดูก่อน"
+                      )}
+                    </div>
                   </div>
                   <div className="scoperow">
                     <div className="sc-lbl">ตำแหน่งปัจจุบัน</div>
@@ -310,25 +528,41 @@ export default function OnboardingPage() {
                     </div>
                   </div>
                 </div>
-                <div className="trustband" style={{ marginTop: 20 }}>
-                  <div className="tb-txt">
-                    <h3>{goal ? "เป้าหมายของคุณตอนนี้" : "ตำแหน่งที่ใกล้เคียงคุณที่สุดตอนนี้"}</h3>
-                    <p>
-                      <b style={{ color: "#fff" }}>{headline.r.name}</b> — ความครอบคลุมของคุณ{" "}
-                      {headline.cov === null ? (
-                        "ยังประเมินไม่ได้ (ข้อมูลน้อยกว่าเกณฑ์)"
-                      ) : (
-                        <b className="mono" style={{ color: "#fff" }}>
-                          {headline.cov}%
-                        </b>
-                      )}{" "}
-                      จากรายวิชาที่เรียนจบและกำลังเรียน คำนวณจากประกาศงานระดับ junior จริง {headline.r.jrPosts} รายการ
-                    </p>
+                {isCustom ? (
+                  <div className="trustband" style={{ marginTop: 20 }}>
+                    <div className="tb-txt">
+                      <h3>ยังคำนวณความครอบคลุมให้คุณไม่ได้</h3>
+                      <p>
+                        เพราะยังไม่มีข้อมูลรายวิชาและทักษะของหลักสูตรที่คุณกรอก —
+                        เราจะเก็บคำขอนี้ไว้เพื่อจัดลำดับว่าจะสกัดข้อมูลหลักสูตรไหนต่อ
+                        ระหว่างนี้ดูตัวอย่างเส้นทางจากสาขาที่มีข้อมูลจริงแล้วได้
+                      </p>
+                    </div>
+                    <Link className="cta" href="/explore">
+                      ดูตัวอย่างเส้นทาง →
+                    </Link>
                   </div>
-                  <Link className="cta" href={`/explore?role=${headline.r.id}`}>
-                    ดูเส้นทางเต็ม →
-                  </Link>
-                </div>
+                ) : headline ? (
+                  <div className="trustband" style={{ marginTop: 20 }}>
+                    <div className="tb-txt">
+                      <h3>{goal ? "เป้าหมายของคุณตอนนี้" : "ตำแหน่งที่ใกล้เคียงคุณที่สุดตอนนี้"}</h3>
+                      <p>
+                        <b style={{ color: "#fff" }}>{headline.r.name}</b> — ความครอบคลุมของคุณ{" "}
+                        {headline.cov === null ? (
+                          "ยังประเมินไม่ได้ (ข้อมูลน้อยกว่าเกณฑ์)"
+                        ) : (
+                          <b className="mono" style={{ color: "#fff" }}>
+                            {headline.cov}%
+                          </b>
+                        )}{" "}
+                        จากรายวิชาที่เรียนจบและกำลังเรียน คำนวณจากประกาศงานระดับ junior จริง {headline.r.jrPosts} รายการ
+                      </p>
+                    </div>
+                    <Link className="cta" href={`/explore?role=${headline.r.id}`}>
+                      ดูเส้นทางเต็ม →
+                    </Link>
+                  </div>
+                ) : null}
               </div>
             )}
             <div className="wizfoot">

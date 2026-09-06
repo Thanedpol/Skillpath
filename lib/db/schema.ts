@@ -106,6 +106,27 @@ export const demand = pgTable(
   ]
 );
 
+/* สาขา/อาชีพที่ผู้ใช้พิมพ์เองตอนตั้งโปรไฟล์ เพราะไม่พบในรายการ —
+   เก็บไว้ให้ทีมเห็นว่ามีคนต้องการหลักสูตรหรืออาชีพไหนบ้าง ใช้จัดลำดับ
+   ว่าจะไปสกัดทักษะจากเอกสารหลักสูตรของสาขาไหนต่อ */
+export const profile_requests = pgTable(
+  "profile_requests",
+  {
+    id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
+    kind: text("kind", { enum: ["major", "role"] }).notNull(),
+    /* kind = 'major' — เก็บตามที่ผู้ใช้พิมพ์ทุกช่อง ไม่จับคู่กับหลักสูตรในระบบเอง */
+    university: text("university"),
+    faculty: text("faculty"),
+    program: text("program"),
+    major_name: text("major_name"),
+    /* kind = 'role' */
+    role_name: text("role_name"),
+    client_id: text("client_id"),
+    created_at: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [check("profile_requests_kind_check", sql`${t.kind} in ('major','role')`)]
+);
+
 /* centralizes what used to live only in each visitor's localStorage */
 export const feedback = pgTable(
   "feedback",

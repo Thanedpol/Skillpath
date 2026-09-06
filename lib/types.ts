@@ -92,11 +92,24 @@ export interface Major {
   source?: string;
 }
 
+/* สาขาที่ผู้ใช้พิมพ์เอง เมื่อไม่พบในรายการ — เก็บตามที่พิมพ์มาทุกช่อง
+   ไม่พยายามจับคู่กับหลักสูตรในระบบเอง เพราะจะเป็นการเดาแทนผู้ใช้ */
+export interface CustomMajor {
+  university: string;
+  faculty: string;
+  program: string;
+  major: string;
+}
+
 export interface Profile {
   major: string;
   ord: number;
   overrides: Record<string, boolean>;
   goalRole: string | null;
+  /* กรอกเมื่อ major === CUSTOM_MAJOR_ID */
+  customMajor?: CustomMajor;
+  /* อาชีพที่พิมพ์เอง — ใช้เมื่อ goalRole === CUSTOM_ROLE_ID */
+  customRole?: string;
 }
 
 export interface RouteResult {

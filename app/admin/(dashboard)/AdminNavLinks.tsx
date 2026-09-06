@@ -22,7 +22,10 @@ const GROUPS: { label: string; links: [string, string][] }[] = [
   },
   {
     label: "ผู้ใช้",
-    links: [["/admin/feedback", "ฟีดแบ็กผู้ใช้"]],
+    links: [
+      ["/admin/feedback", "ฟีดแบ็กผู้ใช้"],
+      ["/admin/requests", "คำขอสาขา/อาชีพ"],
+    ],
   },
   {
     label: "แหล่งข้อมูล",

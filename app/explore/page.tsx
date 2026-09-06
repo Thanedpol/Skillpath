@@ -7,7 +7,7 @@ import Nav from "@/components/Nav";
 import Drawer from "@/components/Drawer";
 import TrustPanel from "@/components/TrustPanel";
 import { COURSES_BY_MAJOR, DEMAND, MAJORS, MIN_POSTS, POSTS, ROLES, SK_BY_MAJOR, STATE, postKeyFor, schoolLabel, tally } from "@/lib/data";
-import { getSkillState, roleCoverage, route as computeRoute, useProfile } from "@/lib/profile";
+import { getSkillState, isCustomMajor, roleCoverage, route as computeRoute, useProfile } from "@/lib/profile";
 import type { DemandPair, Profile, SkillResolved } from "@/lib/types";
 
 type Level = "jr" | "sr";
@@ -126,6 +126,9 @@ function ExploreInner() {
     : [];
 
   const R = role ? computeRoute(role.id, profile) : null;
+  /* สาขาที่ผู้ใช้กรอกเองยังไม่มีข้อมูลรายวิชา ทุกทักษะจึงนับเป็น "ไม่มีวิชาสอน"
+     และความครอบคลุมออกมา 0% — ต้องอธิบายไม่ให้เข้าใจผิดว่าเขาไม่มีทักษะ */
+  const usingCustomMajor = isCustomMajor(profile);
   const curriMajor = MAJORS.find((m) => m.id === profile.major);
   const curriMajorLabel = curriMajor
     ? `${curriMajor.name} (ปรับปรุง 2566) ${schoolLabel(curriMajor.id)}`
@@ -143,6 +146,20 @@ function ExploreInner() {
                   <br />
                   <span className="op">
                     ตั้งโปรไฟล์จริงของคุณเพื่อดูความครอบคลุมที่คำนวณจากรายวิชาที่คุณเรียนไปแล้วจริง ๆ ใช้เวลาไม่ถึงนาที
+                  </span>
+                </div>
+              ) : usingCustomMajor ? (
+                <div style={{ flex: 1 }}>
+                  <b style={{ fontSize: 15 }}>ทุกเปอร์เซ็นต์ในหน้านี้ยังไม่ใช่ของคุณ</b>
+                  <br />
+                  <span className="op">
+                    คุณกรอกสาขา &quot;{profile.customMajor?.major || profile.customMajor?.program || "ที่กรอกเอง"}&quot;
+                    เอง ซึ่งยังไม่มีข้อมูลรายวิชาและทักษะในระบบ ความครอบคลุมจึงขึ้นเป็น 0% ทุกอาชีพ —
+                    ไม่ได้แปลว่าคุณไม่มีทักษะ แต่แปลว่าเรายังไม่มีข้อมูลหลักสูตรของคุณ
+                  </span>
+                  <br />
+                  <span className="op2">
+                    เราเก็บคำขอของคุณไว้แล้ว · ระหว่างนี้เลือกสาขาที่มีข้อมูลจริงในหน้าโปรไฟล์เพื่อดูตัวอย่างเส้นทางได้
                   </span>
                 </div>
               ) : (

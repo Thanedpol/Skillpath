@@ -8,9 +8,10 @@
    ============================================================ */
 import { useCallback, useEffect, useState } from "react";
 import { submitFeedback } from "./actions/feedback";
+import { CLIENT_ID_KEY, getClientId } from "./client-id";
 
 export const FEEDBACK_KEY = "skillpath.feedback.v1";
-export const CLIENT_ID_KEY = "skillpath.clientId.v1";
+export { CLIENT_ID_KEY };
 export type FeedbackVote = "up" | "down";
 
 export function loadFeedback(): Record<string, FeedbackVote> {
@@ -19,20 +20,6 @@ export function loadFeedback(): Record<string, FeedbackVote> {
     return JSON.parse(localStorage.getItem(FEEDBACK_KEY) || "{}");
   } catch {
     return {};
-  }
-}
-
-function getClientId(): string {
-  if (typeof window === "undefined") return "";
-  try {
-    let id = localStorage.getItem(CLIENT_ID_KEY);
-    if (!id) {
-      id = crypto.randomUUID();
-      localStorage.setItem(CLIENT_ID_KEY, id);
-    }
-    return id;
-  } catch {
-    return "";
   }
 }
 

@@ -109,7 +109,8 @@ export default function CurriculumPage() {
   const readyMajors = MAJORS.filter((m) => m.ready);
 
   useEffect(() => {
-    if (ready) setSelectedMajor(profile.major);
+    /* สาขาที่ผู้ใช้กรอกเองไม่มีหลักสูตรให้เปิดดู จึงคงสาขาตัวอย่างไว้แทนหน้าว่าง */
+    if (ready && MAJORS.some((m) => m.id === profile.major && m.ready)) setSelectedMajor(profile.major);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ready]);
 

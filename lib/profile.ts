@@ -9,6 +9,11 @@ import { COURSES_BY_MAJOR, DEMAND, MAJORS, ROLES, SK_BY_MAJOR, TERMS } from "./d
 import type { DemandPair, Profile, RouteResult, SkillResolved } from "./types";
 
 export const PROFILE_KEY = "skillpath.profile.v1";
+
+/* id พิเศษสำหรับสาขา/อาชีพที่ผู้ใช้พิมพ์เอง — จงใจใช้รูปแบบที่ชนกับ id จริงไม่ได้ */
+export const CUSTOM_MAJOR_ID = "__custom__";
+export const CUSTOM_ROLE_ID = "__custom_role__";
+
 export const DEFAULT_PROFILE: Profile = { major: "cs-tu", ord: 31, overrides: {}, goalRole: null };
 
 export function loadProfile(): Profile | null {
@@ -18,10 +23,23 @@ export function loadProfile(): Profile | null {
     if (!raw) return null;
     const p = JSON.parse(raw);
     if (!p || typeof p.ord !== "number") return null;
-    return { major: p.major || "cs-tu", ord: p.ord, overrides: p.overrides || {}, goalRole: p.goalRole || null };
+    return {
+      major: p.major || "cs-tu",
+      ord: p.ord,
+      overrides: p.overrides || {},
+      goalRole: p.goalRole || null,
+      customMajor: p.customMajor || undefined,
+      customRole: p.customRole || undefined,
+    };
   } catch {
     return null;
   }
+}
+
+/* ระบบไม่มีข้อมูลรายวิชา/ทักษะของสาขาที่ผู้ใช้พิมพ์เอง จึงคำนวณความครอบคลุมไม่ได้
+   ทุกหน้าที่แสดงเปอร์เซ็นต์ต้องเช็คค่านี้ก่อน แล้วอธิบายแทนการโชว์ 0% ลอย ๆ */
+export function isCustomMajor(profile: Profile): boolean {
+  return profile.major === CUSTOM_MAJOR_ID;
 }
 
 export function saveProfile(p: Profile) {
@@ -39,8 +57,25 @@ export function termLabel(ord: number): string {
 }
 
 export function majorName(id: string): string {
+  if (id === CUSTOM_MAJOR_ID) return "สาขาที่กรอกเอง";
   const m = MAJORS.find((x) => x.id === id);
   return m ? m.name : "วิทยาการคอมพิวเตอร์";
+}
+
+/* ชื่อสาขาที่แสดงจริงสำหรับโปรไฟล์หนึ่ง ๆ — ถ้าพิมพ์เองให้ใช้ชื่อที่พิมพ์ */
+export function profileMajorLabel(profile: Profile): string {
+  if (isCustomMajor(profile)) {
+    const c = profile.customMajor;
+    return c?.major || c?.program || "สาขาที่กรอกเอง";
+  }
+  return majorName(profile.major);
+}
+
+export function profileGoalLabel(profile: Profile): string | null {
+  if (profile.goalRole === CUSTOM_ROLE_ID) return profile.customRole || "อาชีพที่กรอกเอง";
+  if (!profile.goalRole) return null;
+  const r = ROLES.find((x) => x.id === profile.goalRole);
+  return r ? r.name : null;
 }
 
 /* ------------------------------------------------------------
