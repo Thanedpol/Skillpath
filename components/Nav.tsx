@@ -2,8 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ROLES } from "@/lib/data";
-import { majorName, termLabel, useProfile } from "@/lib/profile";
+import { profileGoalLabel, profileMajorLabel, termLabel, useProfile } from "@/lib/profile";
 
 const LINKS: [string, string][] = [
   ["/", "หน้าแรก"],
@@ -15,7 +14,7 @@ const LINKS: [string, string][] = [
 export default function Nav() {
   const pathname = usePathname();
   const { profile, hasProfile, ready } = useProfile();
-  const goal = profile.goalRole ? ROLES.find((r) => r.id === profile.goalRole) : null;
+  const goalLabel = profileGoalLabel(profile);
 
   return (
     <header className="topbar">
@@ -34,10 +33,10 @@ export default function Nav() {
         <span className="who">
           {!ready ? null : hasProfile ? (
             <>
-              <b>{majorName(profile.major)}</b>&nbsp;·&nbsp;{termLabel(profile.ord)}
-              {goal ? (
+              <b>{profileMajorLabel(profile)}</b>&nbsp;·&nbsp;{termLabel(profile.ord)}
+              {goalLabel ? (
                 <>
-                  &nbsp;·&nbsp;เป้าหมาย <b>{goal.name}</b>
+                  &nbsp;·&nbsp;เป้าหมาย <b>{goalLabel}</b>
                 </>
               ) : null}{" "}
               <Link href="/onboarding">แก้ไขโปรไฟล์</Link>
