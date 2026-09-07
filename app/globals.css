@@ -1156,3 +1156,10 @@ button.finder-row.is-ready[aria-pressed="true"] .fr-main b{color:var(--accent)}
   .fr-tag{margin-top:2px}
 }
 .finder-title{font-family:var(--font-display),sans-serif;font-weight:600;font-size:15px;margin-bottom:12px}
+
+/* เมื่อตัวค้นหาอยู่บนสุดของหน้า เส้นคั่นต้องย้ายไปอยู่ด้านล่าง
+   เพราะไม่มีเนื้อหาอยู่เหนือมันให้ต้องคั่นแล้ว */
+.curriwrap > .finder:first-child{
+  margin-top:0;padding-top:0;border-top:0;
+  margin-bottom:28px;padding-bottom:24px;border-bottom:1px solid var(--rule);
+}

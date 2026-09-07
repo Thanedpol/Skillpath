@@ -133,6 +133,15 @@ export default function CurriculumPage() {
       <Nav />
 
       <div className="curriwrap">
+        {/* ตัวค้นหาอยู่บนสุด — เป็นสิ่งแรกที่คนเข้าหน้านี้มองหา
+            ไม่ใช่ให้ต้องเลื่อนผ่านหลักสูตรที่กำลังเปิดอยู่ไปก่อน */}
+        <MajorFinder
+          majors={MAJORS}
+          selectedId={selectedMajor}
+          onSelect={setSelectedMajor}
+          title="ค้นหาหลักสูตร"
+        />
+
         <div className="curriintro">
           {readyMajors.length > 1 ? (
             <div className="seg" role="group" aria-label="เลือกสาขา" style={{ marginBottom: 16 }}>
@@ -165,12 +174,6 @@ export default function CurriculumPage() {
               <div className="l">ทักษะที่ &quot;เอกสารใช้คำอื่น&quot; — สอนแล้วแต่ค้นไม่เจอ</div>
             </div>
           </div>
-          <MajorFinder
-            majors={MAJORS}
-            selectedId={selectedMajor}
-            onSelect={setSelectedMajor}
-            title="ค้นหาหลักสูตร"
-          />
         </div>
 
         <div>
