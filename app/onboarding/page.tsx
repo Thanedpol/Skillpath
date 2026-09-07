@@ -37,7 +37,6 @@ export default function OnboardingPage() {
   /* สาขาที่เลือกได้จริงคือสาขาที่มีข้อมูลรายวิชา+ทักษะแล้วเท่านั้น
      ที่เหลือมาจากทะเบียนหลักสูตรเปิด แสดงให้เห็นว่ามีอยู่จริงแต่ยังใช้ไม่ได้ */
   const readyMajors = MAJORS.filter((m) => m.ready);
-  const pendingMajors = MAJORS.filter((m) => !m.ready);
 
   /* เลือกหลักสูตรจากรายการค้นหา = ผลเหมือนกดการ์ดด้านบนทุกประการ
      รวมไว้ที่เดียวเพื่อไม่ให้สองทางเข้าตั้งค่า draft ไม่ตรงกัน */
@@ -159,9 +158,8 @@ export default function OnboardingPage() {
               <span className="eyebrow">ขั้นตอน 1 จาก 4</span>
               <h2>คุณเรียนสาขาอะไร</h2>
               <p>
-                ตอนนี้มี {readyMajors.length} สาขาที่ข้อมูลรายวิชาและทักษะพร้อมใช้งานจริง
-                ส่วนอีก {pendingMajors.length} หลักสูตรของ มธ. นำเข้าจากทะเบียนหลักสูตรของ data.go.th แล้ว
-                แต่ยังไม่ได้สกัดทักษะจากเอกสารหลักสูตร จึงยังเลือกไม่ได้
+                แสดงเฉพาะหลักสูตรที่ตรวจสอบข้อมูลรายวิชาและทักษะจากเอกสารจริงแล้ว ตอนนี้มี {readyMajors.length} หลักสูตร
+                — หลักสูตรอื่นกำลังทยอยเพิ่ม ถ้ายังไม่มีของคุณ กรอกเองได้ เราจะเก็บไว้จัดลำดับว่าจะทำอันไหนต่อ
               </p>
             </div>
 
@@ -260,7 +258,7 @@ export default function OnboardingPage() {
               </div>
             ) : null}
 
-            <MajorFinder majors={MAJORS} selectedId={draft.major} onSelect={pickMajor} />
+            <MajorFinder majors={readyMajors} selectedId={draft.major} onSelect={pickMajor} />
             <div className="wizfoot">
               {isCustom && !customMajorFilled ? (
                 <span className="wizhint">กรอกอย่างน้อย 1 ช่องด้านบน หรือเลือกสาขาจากรายการ</span>

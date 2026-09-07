@@ -136,7 +136,7 @@ export default function CurriculumPage() {
         {/* ตัวค้นหาอยู่บนสุด — เป็นสิ่งแรกที่คนเข้าหน้านี้มองหา
             ไม่ใช่ให้ต้องเลื่อนผ่านหลักสูตรที่กำลังเปิดอยู่ไปก่อน */}
         <MajorFinder
-          majors={MAJORS}
+          majors={readyMajors}
           selectedId={selectedMajor}
           onSelect={setSelectedMajor}
           title="ค้นหาหลักสูตร"
