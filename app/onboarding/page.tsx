@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Nav from "@/components/Nav";
+import MajorFinder from "./MajorFinder";
 import { COURSES_BY_MAJOR, MAJORS, MIN_POSTS, ROLES, TERMS, schoolLabel, skillsForCourse } from "@/lib/data";
 import {
   CUSTOM_MAJOR_ID,
@@ -28,7 +29,6 @@ export default function OnboardingPage() {
   const [step, setStep] = useState(1);
   const [advOpen, setAdvOpen] = useState(false);
   const [showToast, setShowToast] = useState(false);
-  const [showPending, setShowPending] = useState(false);
   const [showCustomMajor, setShowCustomMajor] = useState(false);
   const [customMajor, setCustomMajor] = useState<CustomMajor>({ ...EMPTY_CUSTOM });
   const [showCustomRole, setShowCustomRole] = useState(false);
@@ -38,11 +38,14 @@ export default function OnboardingPage() {
      ที่เหลือมาจากทะเบียนหลักสูตรเปิด แสดงให้เห็นว่ามีอยู่จริงแต่ยังใช้ไม่ได้ */
   const readyMajors = MAJORS.filter((m) => m.ready);
   const pendingMajors = MAJORS.filter((m) => !m.ready);
-  const pendingByField: Record<string, typeof pendingMajors> = {};
-  pendingMajors.forEach((m) => {
-    const k = m.iscedField || "ไม่ระบุกลุ่มสาขา";
-    (pendingByField[k] = pendingByField[k] || []).push(m);
-  });
+
+  /* เลือกหลักสูตรจากรายการค้นหา = ผลเหมือนกดการ์ดด้านบนทุกประการ
+     รวมไว้ที่เดียวเพื่อไม่ให้สองทางเข้าตั้งค่า draft ไม่ตรงกัน */
+  function pickMajor(id: string) {
+    setShowCustomMajor(false);
+    setCustomMajor({ ...EMPTY_CUSTOM });
+    setDraft((d) => (d.major === id ? d : { ...d, major: id, overrides: {}, customMajor: undefined }));
+  }
 
   useEffect(() => {
     const existing = loadProfile();
@@ -169,15 +172,7 @@ export default function OnboardingPage() {
                   type="button"
                   className="choice"
                   aria-pressed={m.id === draft.major}
-                  onClick={() => {
-                    // เลิกใช้สาขาที่กรอกเอง (ถ้ามี) — ไม่งั้นฟอร์มจะค้างแสดงข้อมูลเก่า
-                    // ทั้งที่ระบบเปลี่ยนไปใช้สาขาสำเร็จรูปนี้แล้ว
-                    setShowCustomMajor(false);
-                    setCustomMajor({ ...EMPTY_CUSTOM });
-                    setDraft((d) =>
-                      d.major === m.id ? d : { ...d, major: m.id, overrides: {}, customMajor: undefined }
-                    );
-                  }}
+                  onClick={() => pickMajor(m.id)}
                 >
                   <span className="cname">{m.name}</span>
                   <span className="cnote">
@@ -265,35 +260,7 @@ export default function OnboardingPage() {
               </div>
             ) : null}
 
-            <button className="advtoggle" type="button" onClick={() => setShowPending((v) => !v)}>
-              {showPending
-                ? "ซ่อนหลักสูตรที่ยังไม่พร้อม ▴"
-                : `ดูอีก ${pendingMajors.length} หลักสูตรของ มธ. ที่ยังไม่พร้อมใช้งาน ▾`}
-            </button>
-
-            {showPending ? (
-              <div className="courselist">
-                <p className="cnote" style={{ padding: "0 0 10px", color: "var(--muted)", fontSize: 12.5 }}>
-                  รายชื่อจากทะเบียนหลักสูตรอุดมศึกษา (data.go.th · univ_cur_11_01.csv) — แสดงตามที่บันทึกไว้จริง
-                  ยังไม่มีข้อมูลคณะและทักษะ เพราะชุดข้อมูลไม่ได้ให้มา
-                </p>
-                {Object.entries(pendingByField).map(([field, list]) => (
-                  <div className="termgroup" key={field}>
-                    <div className="termgrouphead">
-                      {field} · {list.length} หลักสูตร
-                    </div>
-                    {list.map((m) => (
-                      <div className="courserow" key={m.id}>
-                        <label style={{ opacity: 0.75 }}>
-                          {m.name}
-                          {m.curriculumId ? <span className="cs">รหัสหลักสูตร {m.curriculumId}</span> : null}
-                        </label>
-                      </div>
-                    ))}
-                  </div>
-                ))}
-              </div>
-            ) : null}
+            <MajorFinder majors={MAJORS} selectedId={draft.major} onSelect={pickMajor} />
             <div className="wizfoot">
               {isCustom && !customMajorFilled ? (
                 <span className="wizhint">กรอกอย่างน้อย 1 ช่องด้านบน หรือเลือกสาขาจากรายการ</span>

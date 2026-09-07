@@ -1082,3 +1082,76 @@ h1,h2,h3,.display{font-family:var(--font-display),var(--font-body),sans-serif;le
   .pd-foot{break-inside:avoid;page-break-inside:avoid}
   a[href]{text-decoration:none;color:inherit}
 }
+
+/* ============================================================
+   ค้นหาหลักสูตร (ขั้นตอนที่ 1 ของการตั้งโปรไฟล์)
+   ============================================================ */
+.finder{margin-top:22px;border-top:1px solid var(--rule);padding-top:20px}
+
+.finder-bar{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.finder-input{
+  flex:1;min-width:240px;font-family:inherit;font-size:14px;padding:12px 16px;border-radius:12px;
+  border:1px solid var(--rule);background:var(--card);color:var(--ink);
+}
+.finder-input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+.finder-input::placeholder{color:var(--muted)}
+.finder-clear{
+  appearance:none;cursor:pointer;font-family:inherit;font-size:12.5px;padding:9px 16px;border-radius:99px;
+  border:1px solid var(--rule);background:var(--card);color:var(--ink-soft);white-space:nowrap;
+}
+.finder-clear:hover{border-color:var(--accent);color:var(--accent)}
+.finder-clear:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+.finder-filters{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;margin-top:12px}
+.finder-sel{display:flex;flex-direction:column;gap:5px;min-width:0;flex:1 1 190px}
+.finder-sel > span{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-family:var(--font-mono),var(--font-body),monospace}
+.finder-sel select{
+  font-family:inherit;font-size:13px;padding:9px 12px;border-radius:10px;width:100%;
+  border:1px solid var(--rule);background:var(--card);color:var(--ink);
+}
+.finder-sel select:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+
+.finder-chips{display:inline-flex;border:1px solid var(--rule);border-radius:99px;overflow:hidden;background:var(--card);padding:3px;align-self:flex-end}
+.finder-chips button{
+  appearance:none;cursor:pointer;font-family:inherit;font-size:12.5px;padding:7px 14px;border:0;border-radius:99px;
+  background:transparent;color:var(--muted);white-space:nowrap;
+}
+.finder-chips button:hover{color:var(--ink)}
+.finder-chips button[aria-pressed="true"]{background:var(--accent-soft);color:var(--accent);font-weight:600}
+.finder-chips button:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
+
+.finder-note{font-size:11.5px;color:var(--muted);line-height:1.6;margin:12px 0 0;max-width:78ch}
+.finder-count{font-size:12.5px;color:var(--muted);margin-top:16px}
+.finder-count b{color:var(--ink)}
+.finder-empty{
+  margin-top:12px;padding:18px 20px;border:1px dashed var(--rule-hover);border-radius:14px;
+  font-size:13px;color:var(--muted);line-height:1.65;
+}
+
+.finder-list{list-style:none;margin:10px 0 0;padding:0;max-height:460px;overflow-y:auto;border:1px solid var(--rule);border-radius:14px;background:var(--card)}
+.finder-list li + li .finder-row{border-top:1px solid var(--rule)}
+.finder-row{
+  width:100%;display:flex;align-items:center;gap:14px;text-align:left;
+  padding:12px 16px;background:transparent;border:0;font-family:inherit;color:inherit;
+}
+/* เฉพาะหลักสูตรที่มีข้อมูลพร้อมเท่านั้นที่กดได้ — ตัวที่กดไม่ได้ต้องไม่ทำท่าว่ากดได้ */
+button.finder-row.is-ready{cursor:pointer}
+button.finder-row.is-ready:hover{background:var(--surface-2)}
+button.finder-row.is-ready:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
+button.finder-row.is-ready[aria-pressed="true"]{background:var(--accent-soft)}
+button.finder-row.is-ready[aria-pressed="true"] .fr-main b{color:var(--accent)}
+.fr-main{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}
+.fr-main b{font-size:13.5px;font-weight:600;line-height:1.45}
+.fr-sub{font-size:11.5px;color:var(--muted);line-height:1.5}
+.fr-tag{
+  flex:none;font-size:10px;font-family:var(--font-mono),var(--font-body),monospace;letter-spacing:.05em;
+  padding:3px 9px;border-radius:99px;border:1px solid var(--rule);color:var(--muted);white-space:nowrap;
+}
+.fr-tag.ok{border-color:var(--spark);color:var(--spark);background:var(--spark-soft)}
+
+@media(max-width:640px){
+  .finder-sel{flex:1 1 100%}
+  .finder-chips{align-self:stretch;justify-content:space-between}
+  .finder-row{align-items:flex-start}
+  .fr-tag{margin-top:2px}
+}
