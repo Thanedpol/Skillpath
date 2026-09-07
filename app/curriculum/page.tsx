@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Nav from "@/components/Nav";
+import MajorFinder from "@/components/MajorFinder";
 import Drawer from "@/components/Drawer";
 import TrustPanel from "@/components/TrustPanel";
 import { COURSES_BY_MAJOR, MAJORS, POSTS, SK_BY_MAJOR, STATE, demandFor, postKeyFor, schoolLabel, skillsForCourse } from "@/lib/data";
@@ -164,6 +165,12 @@ export default function CurriculumPage() {
               <div className="l">ทักษะที่ &quot;เอกสารใช้คำอื่น&quot; — สอนแล้วแต่ค้นไม่เจอ</div>
             </div>
           </div>
+          <MajorFinder
+            majors={MAJORS}
+            selectedId={selectedMajor}
+            onSelect={setSelectedMajor}
+            title="ค้นหาหลักสูตร"
+          />
         </div>
 
         <div>

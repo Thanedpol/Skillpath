@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Nav from "@/components/Nav";
-import MajorFinder from "./MajorFinder";
+import MajorFinder from "@/components/MajorFinder";
 import { COURSES_BY_MAJOR, MAJORS, MIN_POSTS, ROLES, TERMS, schoolLabel, skillsForCourse } from "@/lib/data";
 import {
   CUSTOM_MAJOR_ID,

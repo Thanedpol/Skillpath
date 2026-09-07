@@ -27,10 +27,13 @@ export default function MajorFinder({
   majors,
   selectedId,
   onSelect,
+  title,
 }: {
   majors: Major[];
   selectedId: string;
   onSelect: (id: string) => void;
+  /* หัวข้อสั้น ๆ ของบล็อกนี้ — แต่ละหน้าเรียกใช้ด้วยจุดประสงค์ต่างกัน */
+  title?: string;
 }) {
   const [q, setQ] = useState("");
   const [uni, setUni] = useState("");
@@ -93,6 +96,7 @@ export default function MajorFinder({
 
   return (
     <div className="finder">
+      {title ? <div className="finder-title">{title}</div> : null}
       <div className="finder-bar">
         <input
           type="search"

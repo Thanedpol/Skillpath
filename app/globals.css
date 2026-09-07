@@ -1155,3 +1155,4 @@ button.finder-row.is-ready[aria-pressed="true"] .fr-main b{color:var(--accent)}
   .finder-row{align-items:flex-start}
   .fr-tag{margin-top:2px}
 }
+.finder-title{font-family:var(--font-display),sans-serif;font-weight:600;font-size:15px;margin-bottom:12px}
