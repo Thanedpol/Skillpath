@@ -6,7 +6,7 @@
    ============================================================ */
 import { useCallback, useEffect, useState } from "react";
 import { COURSES_BY_MAJOR, DEMAND, MAJORS, ROLES, SK_BY_MAJOR, TERMS } from "./data";
-import type { DemandPair, Profile, RouteResult, SkillResolved } from "./types";
+import type { CourseGroup, DemandPair, Profile, RouteResult, SkillResolved } from "./types";
 
 export const PROFILE_KEY = "skillpath.profile.v1";
 
@@ -176,6 +176,23 @@ export function route(roleId: string, profile: Profile): RouteResult | null {
     .slice(0, 100 - fl.reduce((a, b) => a + b, 0))
     .forEach(([, i]) => { P[keys[i]]++; });
   return { tot, denom, done, hid, now, next, out, more, opt, stuck, seg, P, pct: (n: number) => Math.round((n / tot) * 100) };
+}
+
+/* จัดทักษะเข้ากลุ่มตามรายวิชาที่สอนมัน — ใช้ทั้งหน้าสำรวจอาชีพและหน้าเอกสารแผน
+   อยู่ที่เดียวเพื่อไม่ให้สองหน้าจัดกลุ่มไม่ตรงกัน */
+export function courseGroups(pairs: DemandPair[], major: string): CourseGroup[] {
+  const sk = SK_BY_MAJOR[major] || {};
+  const courses = COURSES_BY_MAJOR[major] || {};
+  const g: Record<string, CourseGroup> = {};
+  pairs.forEach(([k, n]) => {
+    const code = sk[k]?.code || "__";
+    if (!g[code]) g[code] = { code, skills: [], n: 0 };
+    g[code].skills.push([k, n]);
+    g[code].n += n;
+  });
+  return Object.values(g).sort(
+    (a, b) => (courses[a.code]?.ord ?? 99) - (courses[b.code]?.ord ?? 99) || b.n - a.n
+  );
 }
 
 export function roleCoverage(roleId: string, profile: Profile): number | null {

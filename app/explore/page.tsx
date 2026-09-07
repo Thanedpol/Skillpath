@@ -7,30 +7,15 @@ import Nav from "@/components/Nav";
 import Drawer from "@/components/Drawer";
 import TrustPanel from "@/components/TrustPanel";
 import { COURSES_BY_MAJOR, DEMAND, MAJORS, MIN_POSTS, POSTS, ROLES, SK_BY_MAJOR, STATE, postKeyFor, schoolLabel, tally } from "@/lib/data";
-import { coverageRevealHeadline, getSkillState, isCustomMajor, roleCoverage, route as computeRoute, useProfile } from "@/lib/profile";
-import type { DemandPair, Profile, SkillResolved } from "@/lib/types";
+import { courseGroups, coverageRevealHeadline, getSkillState, isCustomMajor, roleCoverage, route as computeRoute, useProfile } from "@/lib/profile";
+import type { CourseGroup, DemandPair, Profile, SkillResolved } from "@/lib/types";
 
 type Level = "jr" | "sr";
 type Sort = "fit" | "dem";
 type DrawerState = { skill: string; n: number; denom: number; roleName: string } | null;
 
-function courseGroups(pairs: DemandPair[], major: string) {
-  const sk = SK_BY_MAJOR[major] || {};
-  const courses = COURSES_BY_MAJOR[major] || {};
-  const g: Record<string, { code: string; skills: DemandPair[]; n: number }> = {};
-  pairs.forEach(([k, n]) => {
-    const code = sk[k]?.code || "__";
-    if (!g[code]) g[code] = { code, skills: [], n: 0 };
-    g[code].skills.push([k, n]);
-    g[code].n += n;
-  });
-  return Object.values(g).sort(
-    (a, b) => (courses[a.code]?.ord ?? 99) - (courses[b.code]?.ord ?? 99) || b.n - a.n
-  );
-}
-
 function CourseBlock({ group, tone, profile, onOpen }: {
-  group: { code: string; skills: DemandPair[]; n: number };
+  group: CourseGroup;
   tone: "t-done" | "t-now";
   profile: Profile;
   onOpen: (k: string, n: number) => void;
@@ -373,8 +358,16 @@ function ExploreInner() {
             ← กลับไปหน้าตำแหน่งงาน
           </button>
           <div className="planhead">
-            <h2>เส้นทางสู่ {role?.name}</h2>
-            <p>ตั้งแต่วิชาที่คุณเรียนไปแล้ว จนถึงสิ่งที่ยังปิดไม่ได้ ทุกช่วงถ่วงน้ำหนักด้วยจำนวนประกาศงานที่ระบุทักษะนั้น</p>
+            <div className="planhead-txt">
+              <h2>เส้นทางสู่ {role?.name}</h2>
+              <p>ตั้งแต่วิชาที่คุณเรียนไปแล้ว จนถึงสิ่งที่ยังปิดไม่ได้ ทุกช่วงถ่วงน้ำหนักด้วยจำนวนประกาศงานที่ระบุทักษะนั้น</p>
+            </div>
+            {/* ทางออกของข้อมูล — เก็บแผนไว้เองได้โดยไม่ต้องสมัครสมาชิก */}
+            {R ? (
+              <Link className="cta ghost" href="/plan">
+                บันทึกเป็น PDF
+              </Link>
+            ) : null}
           </div>
 
           {!R ? (

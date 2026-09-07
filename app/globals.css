@@ -84,10 +84,12 @@ h1,h2,h3,.display{font-family:var(--font-display),var(--font-body),sans-serif;le
 .topbar-in{max-width:1180px;margin:0 auto;padding:14px 20px;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
 .brand{font-family:var(--font-display),sans-serif;font-weight:700;font-size:16px;letter-spacing:-.02em;text-decoration:none;color:var(--ink);display:inline-flex}
 .brand span{color:var(--accent)}
+/* ซ่อนบนจอที่แถบบนเริ่มไม่พอ — ข้อความเดียวกันยังอยู่ที่ท้ายหน้าและหน้าเกี่ยวกับ */
+@media(max-width:1180px){.tag{display:none}}
 .tag{
   font-size:10.5px;letter-spacing:.09em;text-transform:uppercase;font-weight:600;
   border:1px solid var(--rule);border-radius:6px;padding:3px 7px;color:var(--muted);
-  font-family:var(--font-mono),monospace;white-space:nowrap;background:var(--card);
+  font-family:var(--font-mono),var(--font-body),monospace;white-space:nowrap;background:var(--card);
 }
 .navlinks{display:flex;gap:2px;align-items:center}
 .navlinks a{
@@ -96,10 +98,19 @@ h1,h2,h3,.display{font-family:var(--font-display),var(--font-body),sans-serif;le
 }
 .navlinks a:hover{color:var(--ink);background:var(--card)}
 .navlinks a[aria-current="page"]{color:var(--accent);font-weight:600;background:var(--accent-soft)}
-.who{margin-left:auto;font-size:12.5px;color:var(--muted);display:flex;align-items:center;gap:9px}
+.who{margin-left:auto;min-width:0;font-size:12.5px;color:var(--muted);display:flex;align-items:center;gap:9px}
+.whoinfo{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .who b{color:var(--ink);font-weight:600}
 .who a{font-size:12px;color:var(--accent);text-decoration:none;border:1px solid var(--rule);border-radius:99px;padding:4px 10px;white-space:nowrap;background:var(--card)}
 .who a:hover{border-color:var(--accent);box-shadow:var(--shadow-accent)}
+/* โฟกัสคีย์บอร์ดต้องเป็นสีของแบรนด์เหมือนปุ่ม ไม่ใช่กรอบเริ่มต้นของเบราว์เซอร์ */
+.brand:focus-visible,.navlinks a:focus-visible,.who a:focus-visible,
+.sitefoot .fcol a:focus-visible,.inlinelink:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:6px}
+
+/* ลิงก์ในเนื้อความ — เดิมเขียนเป็น inline style จึงไม่มี hover/focus เลย */
+.inlinelink{color:var(--accent);text-decoration:none;border-bottom:1px solid transparent;transition:border-color .12s ease}
+.inlinelink:hover{border-bottom-color:var(--accent)}
+
 .navtoggle{display:none}
 
 /* ---------- corpus band: the thesis, in numbers ---------- */
@@ -123,7 +134,7 @@ h1,h2,h3,.display{font-family:var(--font-display),var(--font-body),sans-serif;le
 /* ---------- buttons ---------- */
 .cta{
   cursor:pointer;padding:11px 20px;
-  background:var(--accent-grad);color:#fff;border:0;border-radius:99px;
+  background:var(--accent-grad);color:#fff;border:1.5px solid transparent;border-radius:99px;
   font-family:var(--font-display),sans-serif;font-weight:600;font-size:14px;white-space:nowrap;
   text-decoration:none;display:inline-flex;align-items:center;gap:6px;
   box-shadow:var(--shadow-accent);transition:transform .14s ease,box-shadow .14s ease,filter .14s ease;
@@ -160,7 +171,7 @@ h1,h2,h3,.display{font-family:var(--font-display),var(--font-body),sans-serif;le
 }
 .listhead{padding-bottom:12px}
 .listhead .listcount{display:block;padding-bottom:8px}
-.listcount{font-family:var(--font-mono),monospace;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.listcount{font-family:var(--font-mono),var(--font-body),monospace;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
 
 .rolelist{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
 .rolecard{
@@ -179,7 +190,7 @@ h1,h2,h3,.display{font-family:var(--font-display),var(--font-body),sans-serif;le
 .rolecard[aria-selected="true"] .rolename{color:var(--accent)}
 .rolename{font-family:var(--font-display),sans-serif;font-weight:600;font-size:16px;display:block}
 .goalchip{
-  font-family:var(--font-mono),monospace;font-size:9.5px;text-transform:uppercase;letter-spacing:.05em;
+  font-family:var(--font-mono),var(--font-body),monospace;font-size:9.5px;text-transform:uppercase;letter-spacing:.05em;
   background:var(--accent-grad);color:#fff;border-radius:99px;padding:2px 8px;margin-left:8px;
   vertical-align:middle;white-space:nowrap;
 }
@@ -188,7 +199,7 @@ h1,h2,h3,.display{font-family:var(--font-display),var(--font-body),sans-serif;le
 .covtrack{flex:1;height:6px;background:var(--track-bg);border-radius:99px;overflow:hidden}
 .covfill{display:block;height:100%;background:var(--accent-grad);border-radius:99px}
 .covnum{
-  font-family:var(--font-mono),monospace;font-size:12px;font-weight:600;color:var(--accent);
+  font-family:var(--font-mono),var(--font-body),monospace;font-size:12px;font-weight:600;color:var(--accent);
   font-variant-numeric:tabular-nums;flex:none;
 }
 .covword{font-size:10.5px;color:var(--muted);letter-spacing:.03em;flex:none}
@@ -227,7 +238,7 @@ h1,h2,h3,.display{font-family:var(--font-display),var(--font-body),sans-serif;le
 .tblhead{
   display:grid;grid-template-columns:1fr 108px 146px;gap:14px;
   padding:14px 2px 8px;font-size:10.5px;letter-spacing:.09em;text-transform:uppercase;
-  color:var(--muted);font-family:var(--font-mono),monospace;border-bottom:1px solid var(--rule);
+  color:var(--muted);font-family:var(--font-mono),var(--font-body),monospace;border-bottom:1px solid var(--rule);
 }
 .skillrow{
   display:grid;grid-template-columns:1fr 108px 146px;gap:6px 14px;align-items:center;
@@ -242,7 +253,7 @@ h1,h2,h3,.display{font-family:var(--font-display),var(--font-body),sans-serif;le
 
 .tally{display:flex;align-items:flex-end;gap:2px;height:20px}
 .tally i{display:block;width:2px;background:var(--accent-2);border-radius:1px;opacity:.9}
-.tallynum{font-family:var(--font-mono),monospace;font-size:12px;color:var(--muted);margin-top:3px}
+.tallynum{font-family:var(--font-mono),var(--font-body),monospace;font-size:12px;color:var(--muted);margin-top:3px}
 .tallywrap{grid-row:1 / span 2;grid-column:2}
 
 .state{grid-row:1 / span 2;grid-column:3;display:flex;align-items:center;gap:7px;font-size:12.5px}
@@ -279,12 +290,13 @@ h1,h2,h3,.display{font-family:var(--font-display),var(--font-body),sans-serif;le
 /* ---------- plan screen ---------- */
 .planwrap{max-width:820px;margin:0 auto;padding:0 20px 80px}
 .back{
-  appearance:none;background:transparent;border:0;cursor:pointer;font-family:var(--font-mono),monospace;
+  appearance:none;background:transparent;border:0;cursor:pointer;font-family:var(--font-mono),var(--font-body),monospace;
   font-size:12px;color:var(--muted);padding:22px 0 4px;letter-spacing:.02em;
 }
 .back:hover{color:var(--accent)}
 .back:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
-.planhead{padding:8px 0 6px}
+.planhead{padding:8px 0 6px;display:flex;align-items:flex-end;justify-content:space-between;gap:20px;flex-wrap:wrap}
+.planhead-txt{min-width:min(100%,32ch)}
 .planhead h2{font-size:24px;font-weight:700;letter-spacing:-.02em}
 .planhead p{font-size:13px;color:var(--muted);margin:6px 0 0;max-width:62ch}
 
@@ -341,7 +353,7 @@ h1,h2,h3,.display{font-family:var(--font-display),var(--font-body),sans-serif;le
 .ctop{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
 .cname{font-family:var(--font-display),sans-serif;font-weight:600;font-size:14.5px}
 .cwhen{
-  margin-left:auto;font-family:var(--font-mono),monospace;font-size:11px;
+  margin-left:auto;font-family:var(--font-mono),var(--font-body),monospace;font-size:11px;
   color:var(--muted);white-space:nowrap;
 }
 .cskills{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
@@ -363,7 +375,7 @@ h1,h2,h3,.display{font-family:var(--font-display),var(--font-body),sans-serif;le
 
 .sec{margin-top:30px}
 .seclbl{
-  font-family:var(--font-mono),monospace;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;
+  font-family:var(--font-mono),var(--font-body),monospace;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;
   color:var(--accent);padding-bottom:8px;border-bottom:1px solid var(--accent-soft);display:block;
 }
 .item{
@@ -373,10 +385,10 @@ h1,h2,h3,.display{font-family:var(--font-display),var(--font-body),sans-serif;le
 .item.alert{border-left:3px solid var(--warn)}
 .item.hard{border-left:3px solid var(--ink-soft);background:var(--surface-2);box-shadow:none}
 .itemtop{display:flex;gap:12px;align-items:baseline;flex-wrap:wrap}
-.code{font-family:var(--font-mono),monospace;font-size:12.5px;color:var(--accent);font-weight:600}
+.code{font-family:var(--font-mono),var(--font-body),monospace;font-size:12.5px;color:var(--accent);font-weight:600}
 .itemname{font-family:var(--font-display),sans-serif;font-weight:600;font-size:16px}
 .chip{
-  margin-left:auto;font-family:var(--font-mono),monospace;font-size:11px;
+  margin-left:auto;font-family:var(--font-mono),var(--font-body),monospace;font-size:11px;
   border:1px solid var(--rule);border-radius:99px;padding:2px 9px;color:var(--muted);white-space:nowrap;
 }
 .item p{margin:9px 0 0;font-size:13.5px;color:var(--ink-soft)}
@@ -388,7 +400,7 @@ h1,h2,h3,.display{font-family:var(--font-display),var(--font-body),sans-serif;le
 .act b{font-family:var(--font-display),sans-serif;font-weight:600;white-space:nowrap}
 .evlink{
   appearance:none;background:transparent;border:0;padding:0;margin-top:9px;cursor:pointer;
-  font-family:var(--font-mono),monospace;font-size:12px;color:var(--accent);
+  font-family:var(--font-mono),var(--font-body),monospace;font-size:12px;color:var(--accent);
   text-decoration:underline;text-underline-offset:3px;
 }
 .evlink:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
@@ -421,7 +433,7 @@ h1,h2,h3,.display{font-family:var(--font-display),var(--font-body),sans-serif;le
 .dclose:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .post{padding:16px 0;border-bottom:1px solid var(--rule)}
 .postco{font-weight:600;font-size:14px}
-.postmeta{font-family:var(--font-mono),monospace;font-size:11.5px;color:var(--muted);margin-top:3px}
+.postmeta{font-family:var(--font-mono),var(--font-body),monospace;font-size:11.5px;color:var(--muted);margin-top:3px}
 .postq{
   margin-top:9px;font-size:13.5px;color:var(--ink-soft);
   border-left:2px solid var(--rule);padding-left:11px;
@@ -460,12 +472,19 @@ h1,h2,h3,.display{font-family:var(--font-display),var(--font-body),sans-serif;le
    site footer (shared, marketing + app pages)
    ============================================================ */
 .sitefoot{border-top:1px solid var(--rule);margin-top:60px;padding:36px 0 40px;background:var(--paper)}
-.sitefoot .wrap{display:flex;justify-content:space-between;gap:24px;flex-wrap:wrap}
+@media(max-width:720px){.sitefoot{margin-top:44px;padding:28px 0 32px}}
+/* กริดเดียวกับการ์ด .steps ด้านบน — คอลัมน์จึงตกบนแกนเดียวกัน
+   และตำแหน่งไม่เปลี่ยนตามความยาวข้อความลิงก์อีกต่อไป */
+.sitefoot .wrap{display:grid;grid-template-columns:repeat(4,1fr);gap:24px 16px;align-items:start}
+.sitefoot .fcol:first-child{grid-column:span 2}
 .sitefoot .fcol{min-width:180px}
-.sitefoot .fcol h4{font-size:11.5px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-family:var(--font-mono),monospace;margin-bottom:10px;font-weight:600}
+.sitefoot .fcol h4{font-size:11.5px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-family:var(--font-mono),var(--font-body),monospace;margin-bottom:10px;font-weight:600}
 .sitefoot .fcol a{display:block;font-size:13px;color:var(--ink);text-decoration:none;padding:3px 0}
 .sitefoot .fcol a:hover{color:var(--accent)}
 .sitefoot .fnote{font-size:12px;color:var(--muted);max-width:340px;line-height:1.6}
+@media(max-width:900px){.sitefoot .wrap{grid-template-columns:repeat(2,1fr)}}
+/* ต้องรีเซ็ต span 2 ด้วย ไม่งั้นกริดคอลัมน์เดียวจะงอกคอลัมน์แฝงกลายเป็นสองคอลัมน์ */
+@media(max-width:520px){.sitefoot .wrap{grid-template-columns:1fr}.sitefoot .fcol:first-child{grid-column:auto}}
 
 /* ============================================================
    landing / marketing page
@@ -484,54 +503,101 @@ h1,h2,h3,.display{font-family:var(--font-display),var(--font-body),sans-serif;le
   pointer-events:none;z-index:0;
 }
 .hero .wrap{position:relative;z-index:1}
-.hero .kicker{
-  font-family:var(--font-mono),monospace;font-size:12px;letter-spacing:.09em;text-transform:uppercase;
-  color:var(--accent);display:inline-flex;align-items:center;gap:8px;background:var(--accent-soft);
-  padding:6px 13px;border-radius:99px;border:1px solid var(--rule);
+/* ชื่อแบรนด์เป็น eyebrow ของหัวเรื่อง — ตัวหนังสือล้วนพร้อมเส้นสั้น ๆ
+   อ่านเป็นโลโก้มากกว่าป้ายแท็ก และไม่ขึ้นสองบรรทัดบนจอแคบ */
+.hero .brandmark{
+  /* inline-block ไม่ใช่ flex — ถ้าเป็น flex คำว่า Skill กับ Path จะกลายเป็นสองไอเทม
+     แล้วโดน gap ดันแยกกลางชื่อแบรนด์ */
+  display:inline-block;
+  font-family:var(--font-display),sans-serif;font-weight:700;font-size:15px;letter-spacing:-.01em;color:var(--ink);
 }
-.hero h1{font-size:48px;line-height:1.12;letter-spacing:-.03em;margin-top:22px;max-width:16ch}
+.hero .brandmark span{color:var(--accent)}
+.hero .brandmark::after{
+  content:"";display:inline-block;vertical-align:middle;
+  width:44px;height:1.5px;background:var(--rule-hover);margin:0 0 3px 12px;
+}
+/* 1.24 ไม่ใช่ 1.12 — ตัวไทยมีสระบนและสระล่างซ้อนอีกสองชั้นเหนือ/ใต้ตัวอักษร
+   ค่าที่พอดีกับหัวเรื่องละตินจึงทำให้บรรทัดไทยชนกัน */
+.hero h1{font-size:48px;line-height:1.24;letter-spacing:-.02em;margin-top:20px;max-width:18ch;text-wrap:balance}
 .hero h1 em{
   font-style:normal;background:var(--accent-grad);-webkit-background-clip:text;background-clip:text;color:transparent;
 }
-.hero .lede{font-size:16.5px;color:var(--ink-soft);max-width:56ch;margin-top:18px;line-height:1.65}
+.hero .lede{font-size:16.5px;color:var(--ink-soft);max-width:56ch;margin:18px 0 0;line-height:1.7}
 .hero .ctarow{display:flex;gap:12px;margin-top:30px;flex-wrap:wrap;align-items:center}
 .hero .ctarow .note{font-size:12.5px;color:var(--muted)}
-@media(max-width:720px){.hero h1{font-size:34px;max-width:100%}}
+@media(max-width:720px){
+  .hero{padding:44px 0 32px}
+  .hero h1{font-size:32px;line-height:1.3;max-width:100%}
+  .hero .lede{font-size:15px}
+}
 
 .stripe{border-top:1px solid var(--rule);border-bottom:1px solid var(--rule);background:var(--card)}
-.stripe .wrap{display:grid;grid-template-columns:repeat(4,1fr);gap:0}
+/* padding-inline:0 — .wrap มี padding 0 20px อยู่แล้ว และ .cell ซ้อนอีก 20px
+   ทำให้ตัวเลขเยื้องเข้ามาจากหัวเรื่องด้านบน 20px เต็ม ๆ */
+.stripe .wrap{display:grid;grid-template-columns:repeat(4,1fr);gap:0;padding-inline:0}
 .stripe .cell{padding:22px 20px;border-left:1px solid var(--rule)}
 .stripe .cell:first-child{border-left:0}
 .stripe .cell .n{font-family:var(--font-display),sans-serif;font-weight:700;font-size:28px;letter-spacing:-.02em;color:var(--accent)}
-.stripe .cell .l{font-size:12px;color:var(--muted);margin-top:4px;line-height:1.4}
-@media(max-width:720px){.stripe .wrap{grid-template-columns:repeat(2,1fr)}.stripe .cell{border-left:1px solid var(--rule)}.stripe .cell:nth-child(2n+1){border-left:0}}
+.stripe .cell .l{font-size:12px;color:var(--muted);margin-top:5px;line-height:1.5;text-wrap:pretty}
+@media(max-width:900px){
+  .stripe .wrap{grid-template-columns:repeat(2,1fr)}
+  .stripe .cell{border-left:1px solid var(--rule)}
+  .stripe .cell:nth-child(2n+1){border-left:0}
+  /* ยุบเป็นสองแถวแล้วต้องมีเส้นคั่นแนวนอนด้วย ไม่งั้นกริดอ่านเป็นกริดที่ทำไม่จบ */
+  .stripe .cell:nth-child(n+3){border-top:1px solid var(--rule)}
+}
+@media(max-width:520px){
+  .stripe .wrap{grid-template-columns:1fr}
+  .stripe .cell{border-left:0}
+  .stripe .cell + .cell{border-top:1px solid var(--rule)}
+}
 
-.section{padding:60px 0}
-.section h2{font-size:28px;letter-spacing:-.02em;max-width:20ch}
+/* ระยะห่างมาจากด้านบนอย่างเดียว — section ที่ต่อกันจึงห่างกัน 60px เสมอ
+   ไม่ใช่ 120px (60 บน + 60 ล่าง) ซึ่งเป็นเหตุให้เดิมต้องเขียน inline style ทับทีละจุด
+   ส่วนระยะก่อน footer มาจาก .sitefoot{margin-top} */
+.section{padding:60px 0 0}
+.section h2{font-size:28px;line-height:1.35;letter-spacing:-.02em;max-width:22ch;text-wrap:balance}
 .section .kicker{
-  font-family:var(--font-mono),monospace;font-size:11px;letter-spacing:.09em;text-transform:uppercase;color:var(--accent);
+  font-family:var(--font-mono),var(--font-body),monospace;font-size:11px;letter-spacing:.09em;text-transform:uppercase;color:var(--accent);
   display:block;margin-bottom:10px;
 }
-.section .lede{font-size:14.5px;color:var(--muted);max-width:60ch;margin-top:10px;line-height:1.6}
+.section .lede{font-size:14.5px;color:var(--muted);max-width:60ch;margin:10px 0 0;line-height:1.7}
+@media(max-width:720px){.section{padding-top:44px}}
 
 /* the vocabulary-gap comparison table — the hook */
 .gaptable{border:1px solid var(--rule);border-radius:16px;overflow:hidden;background:var(--card);margin-top:30px;box-shadow:var(--shadow)}
 .gaprow{display:grid;grid-template-columns:1.1fr 1.1fr .8fr;gap:0;border-top:1px solid var(--rule)}
 .gaprow:first-child{border-top:0}
 .gaprow.head{background:var(--surface-2)}
-.gaprow.head .gc{font-family:var(--font-mono),monospace;font-size:10.5px;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);font-weight:600}
+.gaprow.head .gc{font-family:var(--font-mono),var(--font-body),monospace;font-size:10.5px;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);font-weight:600}
 .gc{padding:16px 18px;font-size:13.5px;border-left:1px solid var(--rule)}
 .gc:first-child{border-left:0}
 .gc.market{color:var(--ink)}
 .gc.market q{quotes:"“" "”"}
 .gc.curric{color:var(--ink-soft)}
-.gc.result{font-family:var(--font-mono),monospace;font-size:12.5px;color:var(--rust);font-weight:600;display:flex;align-items:center}
-@media(max-width:720px){.gaprow{grid-template-columns:1fr}.gc{border-left:0;border-top:1px solid var(--rule)}.gaprow .gc:first-child{border-top:0}}
+.gc.result{font-family:var(--font-mono),var(--font-body),monospace;font-size:12.5px;color:var(--rust);font-weight:600}
+@media(max-width:720px){
+  .gaprow{grid-template-columns:1fr}
+  /* ซ่อนหัวตารางแล้วย้ายป้ายกำกับมาไว้บนค่าแต่ละช่องแทน — ไม่งั้นบนมือถือ
+     จะเหลือแค่ข้อความ 12 บรรทัดที่ไม่รู้ว่าบรรทัดไหนฝั่งตลาดงาน ฝั่งหลักสูตร หรือผลค้น */
+  .gaprow.head{display:none}
+  .gc{border-left:0;border-top:1px solid var(--rule);padding:12px 18px}
+  .gaprow .gc:first-child{border-top:0;padding-top:16px}
+  .gaprow .gc:last-child{padding-bottom:16px}
+  .gc[data-label]::before{
+    content:attr(data-label);display:block;margin-bottom:3px;
+    font-family:var(--font-mono),var(--font-body),monospace;font-size:10px;font-weight:600;
+    letter-spacing:.07em;text-transform:uppercase;color:var(--muted);
+  }
+  /* เส้นหนาคั่นระหว่าง 'หนึ่งการเปรียบเทียบ' กับอันถัดไป */
+  .gaprow + .gaprow{border-top-width:2px;border-top-color:var(--rule-hover)}
+}
 
 /* ---------- research validation (landing) ---------- */
 .statrow{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:26px}
-.statcard{background:var(--card);border:1px solid var(--rule);border-radius:16px;padding:18px 20px;box-shadow:var(--shadow);transition:transform .14s ease,box-shadow .14s ease}
-.statcard:hover{transform:translateY(-2px);box-shadow:var(--shadow-lg)}
+/* ไม่มี hover ยกตัว — การ์ดสองชุดนี้กดไม่ได้ การขยับตอนชี้เมาส์จึงเป็นการ
+   บอกใบ้ว่ากดได้ทั้งที่กดไม่ได้ */
+.statcard{background:var(--card);border:1px solid var(--rule);border-radius:16px;padding:18px 20px;box-shadow:var(--shadow)}
 .statcard .n{font-family:var(--font-display),sans-serif;font-weight:700;font-size:28px;letter-spacing:-.02em;color:var(--accent)}
 .statcard .l{font-size:12px;color:var(--muted);margin-top:6px;line-height:1.5}
 @media(max-width:720px){.statrow{grid-template-columns:1fr}}
@@ -551,10 +617,10 @@ h1,h2,h3,.display{font-family:var(--font-display),var(--font-body),sans-serif;le
 @media(max-width:640px){.persona{flex-direction:column}}
 
 .steps{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:30px}
-.stepcard{background:var(--card);border:1px solid var(--rule);border-radius:16px;padding:20px 18px;box-shadow:var(--shadow);transition:transform .14s ease,box-shadow .14s ease}
-.stepcard:hover{transform:translateY(-2px);box-shadow:var(--shadow-lg)}
-.stepcard .sn{font-family:var(--font-display),sans-serif;font-weight:700;font-size:22px;color:var(--accent);letter-spacing:-.02em}
-.stepcard h3{font-size:15px;margin-top:10px;font-weight:600}
+.stepcard{background:var(--card);border:1px solid var(--rule);border-radius:16px;padding:20px;box-shadow:var(--shadow)}
+/* '01' เป็นลำดับขั้น ไม่ใช่ข้อมูล จึงต้องเบากว่าตัวเลขหลักฐานในแถบสถิติ */
+.stepcard .sn{font-family:var(--font-mono),var(--font-body),monospace;font-weight:600;font-size:11px;letter-spacing:.1em;color:var(--accent)}
+.stepcard h3{font-size:15px;line-height:1.45;margin-top:8px;font-weight:600}
 .stepcard p{font-size:12.5px;color:var(--muted);margin-top:7px;line-height:1.5}
 @media(max-width:900px){.steps{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:520px){.steps{grid-template-columns:1fr}}
@@ -566,6 +632,7 @@ h1,h2,h3,.display{font-family:var(--font-display),var(--font-body),sans-serif;le
 .trustband p{font-size:13px;color:rgba(255,255,255,.72);margin-top:8px;max-width:52ch;line-height:1.6}
 .trustband .cta{background:#fff;color:var(--ink);box-shadow:none;position:relative}
 .trustband .cta:hover{background:var(--accent-grad);color:#fff}
+@media(max-width:520px){.trustband{padding:24px 20px;gap:20px;border-radius:16px}.trustband .cta{width:100%;justify-content:center}}
 
 /* ============================================================
    onboarding wizard
@@ -575,7 +642,7 @@ h1,h2,h3,.display{font-family:var(--font-display),var(--font-body),sans-serif;le
 .wizsteps .ws{flex:1;height:5px;border-radius:99px;background:var(--track-bg)}
 .wizsteps .ws.on{background:var(--accent-grad)}
 .wizsteps .ws.done{background:var(--spark)}
-.wizhead .eyebrow{font-family:var(--font-mono),monospace;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--accent)}
+.wizhead .eyebrow{font-family:var(--font-mono),var(--font-body),monospace;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--accent)}
 .wizhead h2{font-size:25px;margin-top:8px;letter-spacing:-.02em}
 .wizhead p{font-size:13.5px;color:var(--muted);margin-top:8px;max-width:58ch;line-height:1.6}
 
@@ -590,7 +657,7 @@ h1,h2,h3,.display{font-family:var(--font-display),var(--font-body),sans-serif;le
 .choice .cnote{font-size:12px;color:var(--muted);margin-top:5px;line-height:1.45}
 .choice.soon{cursor:not-allowed;opacity:.55}
 .choice.soon:hover{border-color:var(--rule);transform:none}
-.soonchip{font-size:9.5px;text-transform:uppercase;letter-spacing:.06em;background:var(--surface-2);color:var(--muted);border:1px solid var(--rule);border-radius:99px;padding:1px 7px;margin-left:6px;font-family:var(--font-mono),monospace;vertical-align:middle;white-space:nowrap;display:inline-block}
+.soonchip{font-size:9.5px;text-transform:uppercase;letter-spacing:.06em;background:var(--surface-2);color:var(--muted);border:1px solid var(--rule);border-radius:99px;padding:1px 7px;margin-left:6px;font-family:var(--font-mono),var(--font-body),monospace;vertical-align:middle;white-space:nowrap;display:inline-block}
 @media(max-width:560px){.choicegrid{grid-template-columns:1fr}}
 
 .termgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:26px}
@@ -633,12 +700,12 @@ h1,h2,h3,.display{font-family:var(--font-display),var(--font-body),sans-serif;le
 .courselist{margin-top:18px;border:1px solid var(--rule);border-radius:16px;overflow:hidden;background:var(--card)}
 .termgroup{border-top:1px solid var(--rule)}
 .termgroup:first-child{border-top:0}
-.termgrouphead{padding:10px 16px;background:var(--surface-2);font-family:var(--font-mono),monospace;font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+.termgrouphead{padding:10px 16px;background:var(--surface-2);font-family:var(--font-mono),var(--font-body),monospace;font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
 .courserow{display:flex;align-items:flex-start;gap:11px;padding:11px 16px;border-top:1px solid var(--rule)}
 .termgroup .courserow:first-of-type{border-top:0}
 .courserow input{margin-top:3px;width:16px;height:16px;accent-color:var(--accent);flex:none}
 .courserow label{font-size:13px;cursor:pointer;line-height:1.4}
-.courserow .cc{font-family:var(--font-mono),monospace;color:var(--accent);font-size:12px;font-weight:600;margin-right:6px}
+.courserow .cc{font-family:var(--font-mono),var(--font-body),monospace;color:var(--accent);font-size:12px;font-weight:600;margin-right:6px}
 .courserow .cs{display:block;font-size:11.5px;color:var(--muted);margin-top:2px}
 
 .wizfoot{display:flex;justify-content:space-between;align-items:center;margin-top:34px;padding-top:22px;border-top:1px solid var(--rule)}
@@ -670,7 +737,7 @@ h1,h2,h3,.display{font-family:var(--font-display),var(--font-body),sans-serif;le
 .coursecard .cctop{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
 .coursecard .code{font-size:12.5px}
 .coursecard .ccname{font-family:var(--font-display),sans-serif;font-weight:600;font-size:15.5px}
-.coursecard .ccwhen{margin-left:auto;font-family:var(--font-mono),monospace;font-size:11px;color:var(--muted)}
+.coursecard .ccwhen{margin-left:auto;font-family:var(--font-mono),var(--font-body),monospace;font-size:11px;color:var(--muted)}
 .ccskills{display:flex;flex-wrap:wrap;gap:7px;margin-top:13px}
 .ccempty{font-size:12.5px;color:var(--muted);margin-top:12px;font-style:italic}
 .ccskillchip{
@@ -680,7 +747,7 @@ h1,h2,h3,.display{font-family:var(--font-display),var(--font-body),sans-serif;le
 }
 .ccskillchip:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-soft)}
 .ccskillchip .dot{width:8px;height:8px;border-radius:3px;flex:none}
-.ccskillchip .rn{font-family:var(--font-mono),monospace;font-size:10.5px;color:var(--muted)}
+.ccskillchip .rn{font-family:var(--font-mono),var(--font-body),monospace;font-size:10.5px;color:var(--muted)}
 
 /* ============================================================
    about / methodology page
@@ -696,7 +763,7 @@ h1,h2,h3,.display{font-family:var(--font-display),var(--font-body),sans-serif;le
 .scopetable{border:1px solid var(--rule);border-radius:16px;overflow:hidden;margin-top:16px;background:var(--card)}
 .scoperow{display:grid;grid-template-columns:120px 1fr;border-top:1px solid var(--rule)}
 .scoperow:first-child{border-top:0}
-.scoperow .sc-lbl{padding:14px 16px;font-family:var(--font-mono),monospace;font-size:11.5px;color:var(--muted);background:var(--surface-2);border-right:1px solid var(--rule)}
+.scoperow .sc-lbl{padding:14px 16px;font-family:var(--font-mono),var(--font-body),monospace;font-size:11.5px;color:var(--muted);background:var(--surface-2);border-right:1px solid var(--rule)}
 .scoperow .sc-val{padding:14px 16px;font-size:13px}
 .scoperow .sc-val b{color:var(--ink)}
 @media(max-width:560px){.scoperow{grid-template-columns:1fr}.sc-lbl{border-right:0;border-bottom:1px solid var(--rule)}}
@@ -722,7 +789,7 @@ h1,h2,h3,.display{font-family:var(--font-display),var(--font-body),sans-serif;le
   .rolehead{border-radius:0}
   .detail-back{
     display:block;appearance:none;background:transparent;border:0;cursor:pointer;
-    font-family:var(--font-mono),monospace;font-size:12px;color:var(--muted);
+    font-family:var(--font-mono),var(--font-body),monospace;font-size:12px;color:var(--muted);
     padding:16px 24px 0;
   }
   .detail-back:hover{color:var(--accent)}
@@ -817,13 +884,13 @@ h1,h2,h3,.display{font-family:var(--font-display),var(--font-body),sans-serif;le
 
 .admin-table{width:100%;border-collapse:collapse;font-size:13px}
 .admin-table th{
-  text-align:left;font-family:var(--font-mono),monospace;font-size:10.5px;text-transform:uppercase;letter-spacing:.06em;
+  text-align:left;font-family:var(--font-mono),var(--font-body),monospace;font-size:10.5px;text-transform:uppercase;letter-spacing:.06em;
   color:var(--muted);padding:10px 20px;border-bottom:1px solid var(--rule);background:var(--surface-2);white-space:nowrap;
 }
 .admin-table td{padding:11px 20px;border-bottom:1px solid var(--rule);vertical-align:top}
 .admin-table tr:last-child td{border-bottom:0}
 .admin-table tr:hover td{background:var(--surface-2)}
-.admin-table .num{font-family:var(--font-mono),monospace;font-variant-numeric:tabular-nums}
+.admin-table .num{font-family:var(--font-mono),var(--font-body),monospace;font-variant-numeric:tabular-nums}
 /* ปุ่มการกระทำอยู่บรรทัดเดียวเสมอ — ให้ตารางกันความกว้างคอลัมน์ไว้ให้
    ดีกว่าปล่อยให้ปุ่มไหลลงบรรทัดใหม่จนแถวสูงไม่เท่ากัน */
 .admin-actions{display:flex;gap:6px;flex-wrap:nowrap}
@@ -894,3 +961,119 @@ h1,h2,h3,.display{font-family:var(--font-display),var(--font-body),sans-serif;le
 .admin-formgrid.wide{grid-template-columns:1fr}
 .admin-formgrid .span2{grid-column:1 / -1}
 .admin-formfoot{padding:14px 20px;border-top:1px solid var(--rule);display:flex;justify-content:flex-end;gap:8px}
+
+/* ============================================================
+   หน้าเอกสารแผนทักษะ (/plan) + กติกาการพิมพ์เป็น PDF
+
+   ออกแบบให้อ่านรู้เรื่องแม้เบราว์เซอร์ไม่พิมพ์พื้นหลัง (ค่าเริ่มต้นของ
+   กล่องพิมพ์ทุกตัว) — ลำดับชั้นทั้งหมดจึงมาจากเส้น ขนาด และน้ำหนักตัวอักษร
+   ไม่ได้พึ่งสีพื้น
+   ============================================================ */
+.plandocwrap{padding-top:26px;padding-bottom:40px}
+
+.planbar{
+  display:flex;align-items:flex-end;justify-content:space-between;gap:24px;flex-wrap:wrap;
+  padding-bottom:20px;margin-bottom:24px;border-bottom:1px solid var(--rule);
+}
+.planbar-title{font-size:24px;letter-spacing:-.02em}
+.planbar-sub{font-size:13.5px;color:var(--muted);margin-top:7px;max-width:62ch;line-height:1.65}
+.planbar-actions{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.planpick{display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--muted)}
+.planpick select{
+  font-family:inherit;font-size:13px;padding:8px 12px;border-radius:10px;
+  border:1px solid var(--rule);background:var(--card);color:var(--ink);
+}
+.planpick select:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+.planbar .cta:disabled{opacity:.45;cursor:not-allowed}
+
+.plannotice{
+  background:var(--card);border:1px solid var(--rule);border-radius:16px;padding:26px 28px;
+  box-shadow:var(--shadow);max-width:62ch;
+}
+.plannotice b{font-family:var(--font-display),sans-serif;font-size:16px;display:block}
+.plannotice p{font-size:13.5px;color:var(--muted);margin:9px 0 18px;line-height:1.65}
+
+/* ---------- ตัวเอกสาร ---------- */
+.plandoc{
+  background:var(--card);border:1px solid var(--rule);border-radius:16px;box-shadow:var(--shadow);
+  /* ~เท่าสัดส่วนหน้ากระดาษ A4 เพื่อให้เห็นบนจอใกล้เคียงกับตอนพิมพ์ */
+  max-width:820px;margin:0 auto;padding:44px 48px 40px;
+}
+.pd-head{
+  display:flex;align-items:baseline;justify-content:space-between;gap:16px;flex-wrap:wrap;
+  padding-bottom:14px;border-bottom:2px solid var(--ink);
+}
+.pd-brand{font-family:var(--font-display),sans-serif;font-weight:700;font-size:19px;letter-spacing:-.02em}
+.pd-brand span{color:var(--accent)}
+.pd-issued{font-size:11.5px;color:var(--muted);font-family:var(--font-mono),var(--font-body),monospace}
+.pd-title{font-size:26px;letter-spacing:-.02em;margin-top:24px}
+
+.pd-profile{width:100%;border-collapse:collapse;margin-top:18px;font-size:13px}
+.pd-profile th{
+  text-align:left;vertical-align:top;width:15%;padding:9px 12px 9px 0;font-weight:500;
+  font-size:11px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);
+  font-family:var(--font-mono),var(--font-body),monospace;border-top:1px solid var(--rule);
+}
+.pd-profile td{vertical-align:top;padding:9px 24px 9px 0;border-top:1px solid var(--rule)}
+.pd-profile tr:first-child th,.pd-profile tr:first-child td{border-top:0}
+
+.pd-section{margin-top:34px}
+.pd-section h3{
+  font-size:16px;letter-spacing:-.01em;padding-bottom:8px;border-bottom:1px solid var(--rule);
+}
+.pd-sub-h{font-size:13.5px;font-weight:600;margin-top:22px;color:var(--ink-soft)}
+.pd-lead{font-size:13px;color:var(--ink-soft);margin-top:12px;line-height:1.7;max-width:66ch}
+.pd-big{font-size:19px;color:var(--accent)}
+.pd-warn{border-left:3px solid var(--warn);padding-left:14px}
+.pd-empty{font-size:12.5px;color:var(--muted);margin-top:12px;font-style:italic}
+.pd-note{font-size:12px;color:var(--muted);margin-top:12px;line-height:1.65;max-width:66ch}
+
+.pd-table{width:100%;border-collapse:collapse;margin-top:14px;font-size:12.5px}
+.pd-table th{
+  text-align:left;font-size:10.5px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);
+  font-family:var(--font-mono),var(--font-body),monospace;font-weight:600;padding:0 10px 7px 0;border-bottom:1px solid var(--rule);
+}
+.pd-table td{padding:10px 10px 10px 0;border-bottom:1px solid var(--rule);vertical-align:top;line-height:1.6}
+.pd-table th:last-child,.pd-table td:last-child{padding-right:0}
+.pd-table .pd-num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.pd-code{white-space:nowrap;color:var(--ink-soft)}
+.pd-sub{font-size:11.5px;color:var(--muted);margin-top:3px;line-height:1.5}
+.pd-alias{font-size:11px;color:var(--muted);font-style:italic;margin-top:2px;line-height:1.5}
+.pd-tag{
+  font-size:10px;font-family:var(--font-mono),var(--font-body),monospace;margin-left:7px;padding:1px 6px;border-radius:99px;
+  border:1px solid var(--rule);color:var(--muted);white-space:nowrap;
+}
+.pd-skills{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:7px}
+.pd-breakdown td:first-child{font-weight:500}
+
+.pd-foot{margin-top:36px;padding-top:16px;border-top:1px solid var(--rule)}
+.pd-foot b{font-size:11px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);font-family:var(--font-mono),var(--font-body),monospace}
+.pd-foot p{font-size:11.5px;color:var(--muted);margin-top:7px;line-height:1.65;max-width:74ch}
+.pd-url{color:var(--muted)}
+
+@media(max-width:720px){
+  .plandoc{padding:26px 20px 24px;border-radius:12px}
+  .pd-title{font-size:21px}
+  .pd-profile th{width:auto}
+  /* ตารางเอกสารบนมือถือ: ให้เลื่อนแนวนอนในกรอบตัวเอง ไม่ดันทั้งหน้า */
+  .pd-section{overflow-x:auto}
+}
+
+/* ---------- ตอนพิมพ์ / บันทึกเป็น PDF ---------- */
+@page{size:A4;margin:15mm 14mm}
+@media print{
+  /* ทุกอย่างที่กดไม่ได้บนกระดาษ ต้องไม่กินพื้นที่กระดาษ */
+  .topbar,.planbar,.sitefoot,.plannotice .cta{display:none!important}
+  html,body{background:#fff}
+  .wrap,.plandocwrap{max-width:none;padding:0;margin:0}
+  .plandoc{max-width:none;margin:0;padding:0;border:0;border-radius:0;box-shadow:none;background:#fff}
+  .pd-head{border-bottom-width:1.5px}
+  .pd-title{margin-top:16px}
+  .pd-section{margin-top:22px;overflow:visible}
+  /* กันหัวข้อค้างท้ายหน้าโดยที่ตารางไปอยู่หน้าถัดไป */
+  .pd-section h3,.pd-sub-h{break-after:avoid;page-break-after:avoid}
+  .pd-table tr,.pd-profile tr{break-inside:avoid;page-break-inside:avoid}
+  .pd-table thead{display:table-header-group}
+  .pd-foot{break-inside:avoid;page-break-inside:avoid}
+  a[href]{text-decoration:none;color:inherit}
+}

@@ -29,7 +29,7 @@ export const metadata: Metadata = {
     template: "%s — SkillPath",
   },
   description:
-    "AI ที่แปลสิ่งที่คุณเรียนให้เป็นภาษาที่ตลาดงานเข้าใจ · แพลตฟอร์มโดยทีม 4WARDERS — Generation Thailand Hackathon 2026 โจทย์ที่ 1",
+    "แพลตฟอร์มที่แปลรายวิชาในหลักสูตรให้เป็นภาษาที่ตลาดงานเข้าใจ — เห็นว่าคุณพร้อมสำหรับงานที่อยากทำไปแล้วแค่ไหน และเหลืออะไรต้องทำต่อ",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

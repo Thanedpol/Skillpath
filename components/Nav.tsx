@@ -15,6 +15,10 @@ export default function Nav() {
   const pathname = usePathname();
   const { profile, hasProfile, ready } = useProfile();
   const goalLabel = profileGoalLabel(profile);
+  /* ข้อความเต็มไว้ให้ tooltip เมื่อบรรทัดถูกตัดท้าย */
+  const whoTitle = [profileMajorLabel(profile), termLabel(profile.ord), goalLabel ? `เป้าหมาย ${goalLabel}` : null]
+    .filter(Boolean)
+    .join(" · ");
 
   return (
     <header className="topbar">
@@ -33,12 +37,16 @@ export default function Nav() {
         <span className="who">
           {!ready ? null : hasProfile ? (
             <>
-              <b>{profileMajorLabel(profile)}</b>&nbsp;·&nbsp;{termLabel(profile.ord)}
-              {goalLabel ? (
-                <>
-                  &nbsp;·&nbsp;เป้าหมาย <b>{goalLabel}</b>
-                </>
-              ) : null}{" "}
+              {/* สรุปโปรไฟล์อยู่บรรทัดเดียวเสมอ ตัดท้ายด้วย … เมื่อจอแคบ —
+                  เดิมข้อความยาวนี้ดันแถบบนให้ขึ้นสองถึงสามบรรทัด */}
+              <span className="whoinfo" title={whoTitle}>
+                <b>{profileMajorLabel(profile)}</b>&nbsp;·&nbsp;{termLabel(profile.ord)}
+                {goalLabel ? (
+                  <>
+                    &nbsp;·&nbsp;เป้าหมาย <b>{goalLabel}</b>
+                  </>
+                ) : null}
+              </span>
               <Link href="/onboarding">แก้ไขโปรไฟล์</Link>
             </>
           ) : (

@@ -9,6 +9,9 @@ export default function HomePage() {
   const { ready } = useProfile();
   const goingToApp = ready && hasSavedProfile();
   const P = RESEARCH.persona;
+  /* สัดส่วนสาขาเก็บไว้เป็นเปอร์เซ็นต์ แต่แสดงเป็นจำนวนคนจากฐานจริง
+     เพื่อไม่ให้ดูแม่นยำเกินกว่าที่ตัวอย่าง 13 คนรองรับ */
+  const majorTop = Math.round((RESEARCH.majorBreakdown[0][1] / 100) * RESEARCH.interviewed);
 
   return (
     <>
@@ -17,7 +20,9 @@ export default function HomePage() {
       {/* ============ HERO ============ */}
       <section className="hero">
         <div className="wrap">
-          <span className="kicker">Generation Thailand Hackathon 2026 · โจทย์ที่ 1 · ทีม 4WARDERS</span>
+          <span className="brandmark">
+            Skill<span>Path</span>
+          </span>
           <h1>
             หลักสูตรกับตลาดงาน
             <br />
@@ -36,7 +41,7 @@ export default function HomePage() {
             <Link className="cta lg ghost" href="/explore">
               ดูตัวอย่างเลย
             </Link>
-            <span className="note">ไม่ต้องสมัครสมาชิก · ใช้เวลาไม่ถึงนาที</span>
+            <span className="note">ไม่ต้องสมัครสมาชิก · ใช้เวลาไม่ถึงนาที · บันทึกแผนเป็น PDF ได้</span>
           </div>
         </div>
       </section>
@@ -45,7 +50,9 @@ export default function HomePage() {
         <div className="wrap">
           <div className="cell">
             <div className="n mono">3,180</div>
-            <div className="l">ประกาศงานจริงที่วิเคราะห์แล้ว ใน 90 วันล่าสุด*</div>
+            {/* เดิมเขียนว่า "ประกาศงานจริง...*" โดยที่ดอกจันไม่มีเชิงอรรถ และขัดกับ
+                ท้ายหน้าที่ระบุว่าฝั่งประกาศงานยังเป็นชุดข้อมูลตัวอย่าง */}
+            <div className="l">ประกาศงานในชุดข้อมูลตัวอย่างที่ใช้คำนวณ</div>
           </div>
           <div className="cell">
             <div className="n mono">20</div>
@@ -57,7 +64,7 @@ export default function HomePage() {
           </div>
           <div className="cell">
             <div className="n mono">30</div>
-            <div className="l">จำนวนประกาศขั้นต่ำ ก่อนระบบจะยอมฟันธงเป็น %</div>
+            <div className="l">จำนวนประกาศขั้นต่ำ ก่อนระบบจะยอมฟันธงเป็น&nbsp;%</div>
           </div>
         </div>
       </div>
@@ -79,28 +86,28 @@ export default function HomePage() {
               <div className="gc">ผลค้นในเอกสาร</div>
             </div>
             <div className="gaprow">
-              <div className="gc market"><q>ใช้ SQL ได้คล่อง</q></div>
-              <div className="gc curric">“ภาษาสอบถาม / query languages” (คพ.251)</div>
-              <div className="gc result">SQL — พบ 0 ครั้ง</div>
+              <div className="gc market" data-label="ตลาดงานเขียนว่า"><q>ใช้ SQL ได้คล่อง</q></div>
+              <div className="gc curric" data-label="หลักสูตรเขียนว่า">“ภาษาสอบถาม / query languages” (คพ.251)</div>
+              <div className="gc result" data-label="ผลค้นในเอกสาร">SQL — พบ 0 ครั้ง</div>
             </div>
             <div className="gaprow">
-              <div className="gc market"><q>มีประสบการณ์ใช้ Docker</q></div>
-              <div className="gc curric">“คอนเทนเนอร์” (คพ.365)</div>
-              <div className="gc result">Docker — พบ 0 ครั้ง</div>
+              <div className="gc market" data-label="ตลาดงานเขียนว่า"><q>มีประสบการณ์ใช้ Docker</q></div>
+              <div className="gc curric" data-label="หลักสูตรเขียนว่า">“คอนเทนเนอร์” (คพ.365)</div>
+              <div className="gc result" data-label="ผลค้นในเอกสาร">Docker — พบ 0 ครั้ง</div>
             </div>
             <div className="gaprow">
-              <div className="gc market"><q>ใช้ Git ร่วมกับทีมได้</q></div>
-              <div className="gc curric">“การควบคุมเวอร์ชันของโค้ดด้วยกิท” (คพ.365)</div>
-              <div className="gc result">Git — พบ 1 ครั้ง</div>
+              <div className="gc market" data-label="ตลาดงานเขียนว่า"><q>ใช้ Git ร่วมกับทีมได้</q></div>
+              <div className="gc curric" data-label="หลักสูตรเขียนว่า">“การควบคุมเวอร์ชันของโค้ดด้วยกิท” (คพ.365)</div>
+              <div className="gc result" data-label="ผลค้นในเอกสาร">Git — พบ 1 ครั้ง</div>
             </div>
             <div className="gaprow">
-              <div className="gc market"><q>เคยใช้ Spring Boot</q></div>
-              <div className="gc curric">ไม่มีวิชาสอน</div>
-              <div className="gc result">Spring — พบ 0 ครั้ง</div>
+              <div className="gc market" data-label="ตลาดงานเขียนว่า"><q>เคยใช้ Spring Boot</q></div>
+              <div className="gc curric" data-label="หลักสูตรเขียนว่า">ไม่มีวิชาสอน</div>
+              <div className="gc result" data-label="ผลค้นในเอกสาร">Spring — พบ 0 ครั้ง</div>
             </div>
           </div>
           <p className="lede" style={{ marginTop: 16 }}>
-            <Link href="/about" style={{ color: "var(--accent)", textDecoration: "none" }}>
+            <Link href="/about" className="inlinelink">
               อ่านที่มาของข้อมูลและวิธีคำนวณทั้งหมด →
             </Link>
           </p>
@@ -108,7 +115,7 @@ export default function HomePage() {
       </section>
 
       {/* ============ VALIDATED BY RESEARCH ============ */}
-      <section className="section" style={{ paddingTop: 10 }}>
+      <section className="section">
         <div className="wrap">
           <span className="kicker">ไม่ใช่สมมติฐาน</span>
           <h2>ปัญหานี้ตรวจสอบกับนักศึกษาจริงมาแล้ว</h2>
@@ -117,11 +124,15 @@ export default function HomePage() {
           <div className="statrow">
             <div className="statcard">
               <div className="n mono">{RESEARCH.unsureCount}/{RESEARCH.interviewed}</div>
-              <div className="l">นักศึกษาไม่มั่นใจสิ่งที่ตัวเองเตรียมตัวอยู่ — คิดเป็นราว {RESEARCH.unsurePct}%</div>
+              <div className="l">นักศึกษาไม่มั่นใจสิ่งที่ตัวเองเตรียมตัวอยู่ — กลุ่มตัวอย่างเล็ก จึงรายงานเป็นจำนวนคน ไม่ใช่เปอร์เซ็นต์</div>
             </div>
             <div className="statcard">
-              <div className="n mono">{RESEARCH.majorBreakdown[0][1]}%</div>
-              <div className="l">ของผู้ให้สัมภาษณ์เรียน{RESEARCH.majorBreakdown[0][0]} ส่วนที่เหลือกระจายในสาขาอื่น</div>
+              {/* เดิมแสดง 76.9% จากฐาน 13 คน ซึ่งขัดกับกฎของหน้านี้เองที่ว่า
+                  ตัวอย่างต่ำกว่า 30 จะไม่ฟันธงเป็นเปอร์เซ็นต์ — แสดงเป็นจำนวนคนแทน */}
+              <div className="n mono">
+                {majorTop}/{RESEARCH.interviewed}
+              </div>
+              <div className="l">ผู้ให้สัมภาษณ์เรียน{RESEARCH.majorBreakdown[0][0]} ส่วนที่เหลือกระจายในสาขาอื่น</div>
             </div>
             <div className="statcard">
               <div className="n mono">{RESEARCH.validated}</div>
@@ -144,7 +155,7 @@ export default function HomePage() {
       </section>
 
       {/* ============ HOW IT WORKS ============ */}
-      <section className="section" style={{ paddingTop: 10 }}>
+      <section className="section">
         <div className="wrap">
           <span className="kicker">SkillPath ทำงานอย่างไร</span>
           <h2>จากทักษะที่มองไม่เห็น สู่แผนรายวิชาที่ทำได้จริง</h2>
@@ -174,7 +185,7 @@ export default function HomePage() {
       </section>
 
       {/* ============ TRUST ============ */}
-      <section className="section" style={{ paddingTop: 0 }}>
+      <section className="section">
         <div className="wrap">
           <div className="trustband">
             <div className="tb-txt">
@@ -193,19 +204,20 @@ export default function HomePage() {
 
       <footer className="sitefoot">
         <div className="wrap">
-          <div className="fcol" style={{ flex: 1.4, minWidth: 240 }}>
+          <div className="fcol">
             <span className="brand">
               เส้นทาง<span>ทักษะ</span>
             </span>
             <p className="fnote" style={{ marginTop: 12 }}>
-              แพลตฟอร์มที่แปลรายวิชาในหลักสูตรให้เป็นภาษาที่ตลาดงานเข้าใจ พัฒนาต่อยอดจากต้นแบบทีม 4WARDERS สำหรับ
-              Generation Thailand Hackathon 2026 โจทย์ที่ 1
+              แพลตฟอร์มที่แปลรายวิชาในหลักสูตรให้เป็นภาษาที่ตลาดงานเข้าใจ
+              เพื่อให้นักศึกษาเห็นว่าตัวเองพร้อมสำหรับงานที่อยากทำไปแล้วแค่ไหน และเหลืออะไรต้องทำต่อ
             </p>
           </div>
           <div className="fcol">
             <h4>แพลตฟอร์ม</h4>
             <Link href="/onboarding">เริ่มต้นใช้งาน</Link>
             <Link href="/explore">สำรวจอาชีพ</Link>
+            <Link href="/plan">แผนของฉัน (PDF)</Link>
             <Link href="/curriculum">หลักสูตรทั้งหมด</Link>
             <Link href="/about">เกี่ยวกับ / วิธีคำนวณ</Link>
           </div>

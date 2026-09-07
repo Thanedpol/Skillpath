@@ -47,6 +47,13 @@ export interface Role {
 
 export type DemandPair = [string, number];
 
+/* ทักษะหลายตัวที่มาจากรายวิชาเดียวกัน — n คือผลรวมจำนวนประกาศของทักษะในกลุ่ม */
+export interface CourseGroup {
+  code: string;
+  skills: DemandPair[];
+  n: number;
+}
+
 export interface DemandLevels {
   jr: DemandPair[];
   sr: DemandPair[];
