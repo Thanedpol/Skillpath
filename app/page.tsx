@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import Nav from "@/components/Nav";
+import HeroArt from "@/components/HeroArt";
 import { RESEARCH } from "@/lib/data";
 import { hasSavedProfile, useProfile } from "@/lib/profile";
 
@@ -19,7 +20,8 @@ export default function HomePage() {
 
       {/* ============ HERO ============ */}
       <section className="hero">
-        <div className="wrap">
+        <div className="wrap heroin">
+          <div className="herotext">
           <span className="brandmark">
             Skill<span>Path</span>
           </span>
@@ -43,6 +45,9 @@ export default function HomePage() {
             </Link>
             <span className="note">ไม่ต้องสมัครสมาชิก · ใช้เวลาไม่ถึงนาที · บันทึกแผนเป็น PDF ได้</span>
           </div>
+          </div>
+
+          <HeroArt />
         </div>
       </section>
 

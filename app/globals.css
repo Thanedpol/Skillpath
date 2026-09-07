@@ -1163,3 +1163,103 @@ button.finder-row.is-ready[aria-pressed="true"] .fr-main b{color:var(--accent)}
   margin-top:0;padding-top:0;border-top:0;
   margin-bottom:28px;padding-bottom:24px;border-bottom:1px solid var(--rule);
 }
+
+/* ============================================================
+   ภาพประกอบหน้าแรก — จอโน้ตบุ๊กแสดงหน้าจอจริง + การ์ดอธิบายแก่นผลิตภัณฑ์
+   ============================================================ */
+.sr-only{
+  position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;
+  clip:rect(0 0 0 0);clip-path:inset(50%);white-space:nowrap;border:0;
+}
+
+/* ข้อความกับภาพเป็นสองคอลัมน์ — ก่อนหน้านี้ครึ่งขวาของ hero ว่างเปล่า */
+.heroin{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,500px);gap:52px;align-items:center}
+.herotext{min-width:0}
+
+.heroart{position:relative;min-width:0;padding-bottom:34px}
+
+.laptop{margin:0;position:relative}
+.laptop-screen{
+  background:var(--ink-deep);border-radius:14px 14px 5px 5px;padding:11px 11px 13px;
+  box-shadow:0 26px 60px rgba(23,20,38,.22),0 3px 10px rgba(23,20,38,.12);
+}
+/* ฐานเครื่อง — กว้างกว่าจอเล็กน้อยเหมือนโน้ตบุ๊กจริง */
+.laptop-base{
+  width:114%;margin-left:-7%;height:11px;border-radius:0 0 12px 12px;
+  background:linear-gradient(180deg,#3A3550,#241F36);
+  box-shadow:0 10px 20px rgba(23,20,38,.18);position:relative;
+}
+.laptop-base::after{
+  content:"";position:absolute;top:0;left:50%;transform:translateX(-50%);
+  width:84px;height:4px;border-radius:0 0 6px 6px;background:rgba(255,255,255,.13);
+}
+
+.mini{background:var(--card);border-radius:8px;overflow:hidden}
+.mini-bar{
+  display:flex;align-items:center;gap:10px;padding:8px 11px;
+  background:var(--surface-2);border-bottom:1px solid var(--rule);
+}
+.mini-dots{display:inline-flex;gap:5px}
+.mini-dots i{width:7px;height:7px;border-radius:50%;background:var(--rule-hover);display:block}
+.mini-tab{
+  font-size:10px;color:var(--muted);background:var(--card);border:1px solid var(--rule);
+  border-radius:6px;padding:2px 9px;
+}
+
+.mini-body{padding:14px 15px 16px}
+.mini-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px}
+.mini-head b{display:block;font-family:var(--font-display),sans-serif;font-size:15px;letter-spacing:-.01em}
+.mini-head span{display:block;font-size:10.5px;color:var(--muted);margin-top:3px}
+.mini-cov{text-align:right;flex:none}
+.mini-cov b{font-family:var(--font-display),sans-serif;font-size:22px;color:var(--accent);letter-spacing:-.02em}
+.mini-cov span{font-size:9.5px;color:var(--muted)}
+
+.mini-meter{display:flex;height:8px;border-radius:99px;overflow:hidden;background:var(--track-bg);margin-top:12px}
+.mini-meter .ms{display:block;height:100%}
+.ms-done{background:var(--spark)}
+.ms-now{background:var(--spark-2)}
+.ms-next{background:var(--accent)}
+.ms-out{background:var(--warn)}
+.ms-rest{background:var(--rule-hover)}
+
+.mini-rows{list-style:none;margin:14px 0 0;padding:0;display:flex;flex-direction:column;gap:2px}
+.mini-rows li{
+  display:flex;align-items:flex-start;gap:9px;padding:8px 0;border-top:1px solid var(--rule);font-size:12px;
+}
+.mini-rows li:first-child{border-top:0}
+.mk{width:8px;height:8px;border-radius:50%;flex:none;margin-top:4px}
+.mk-done{background:var(--spark)}
+.mk-next{background:transparent;border:1.5px solid var(--accent)}
+.mr-name{flex:1;min-width:0;line-height:1.45}
+.mr-name em{display:block;font-style:normal;font-size:10.5px;color:var(--muted);margin-top:2px}
+.mr-meta{flex:none;font-size:10.5px;color:var(--muted);white-space:nowrap}
+
+/* การ์ดที่บอกแก่นของผลิตภัณฑ์: คำเดียวกัน สองฝั่งเขียนคนละอย่าง */
+.gapcard{
+  position:absolute;left:-14px;bottom:0;z-index:2;
+  display:flex;align-items:center;gap:14px;
+  background:var(--card);border:1px solid var(--rule);border-radius:14px;padding:12px 16px;
+  box-shadow:var(--shadow-lg);
+}
+.gc-side{min-width:0}
+.gc-lbl{
+  display:block;font-family:var(--font-mono),var(--font-body),monospace;font-size:8.5px;letter-spacing:.08em;
+  text-transform:uppercase;color:var(--muted);margin-bottom:3px;
+}
+.gc-side b{font-size:13px;font-weight:600;white-space:nowrap}
+.gc-link{
+  flex:none;width:22px;height:22px;border-radius:50%;background:var(--accent-soft);color:var(--accent);
+  display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;
+}
+
+@media(max-width:1040px){
+  .heroin{grid-template-columns:1fr;gap:40px}
+  /* บนจอแคบ ภาพอยู่ใต้ข้อความ — จำกัดความกว้างไม่ให้จอโน้ตบุ๊กใหญ่เกินตัวหนังสือ */
+  .heroart{max-width:500px}
+}
+@media(max-width:560px){
+  .gapcard{position:static;margin-top:18px;left:auto;bottom:auto;justify-content:space-between}
+  .heroart{padding-bottom:0}
+  .mini-head b{font-size:14px}
+  .mini-cov b{font-size:19px}
+}
