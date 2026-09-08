@@ -1165,7 +1165,7 @@ button.finder-row.is-ready[aria-pressed="true"] .fr-main b{color:var(--accent)}
 }
 
 /* ============================================================
-   ภาพประกอบหน้าแรก — จอโน้ตบุ๊กแสดงหน้าจอจริง + การ์ดอธิบายแก่นผลิตภัณฑ์
+   ภาพประกอบหน้าแรก — จอโน้ตบุ๊กแสดง "เส้นทาง" จริง + การ์ดลอยสามใบ
    ============================================================ */
 .sr-only{
   position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;
@@ -1173,12 +1173,13 @@ button.finder-row.is-ready[aria-pressed="true"] .fr-main b{color:var(--accent)}
 }
 
 /* ข้อความกับภาพเป็นสองคอลัมน์ — ก่อนหน้านี้ครึ่งขวาของ hero ว่างเปล่า */
-.heroin{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,500px);gap:52px;align-items:center}
+.heroin{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,510px);gap:52px;align-items:center}
 .herotext{min-width:0}
 
-.heroart{position:relative;min-width:0;padding-bottom:34px}
+/* เผื่อขอบให้การ์ดลอยที่ยื่นออกนอกจอโน้ตบุ๊กทั้งสี่ทิศ */
+.heroart{position:relative;min-width:0;padding:30px 0 42px}
 
-.laptop{margin:0;position:relative}
+.laptop{margin:0;position:relative;animation:artRise .7s cubic-bezier(.22,.85,.28,1) both}
 .laptop-screen{
   background:var(--ink-deep);border-radius:14px 14px 5px 5px;padding:11px 11px 13px;
   box-shadow:0 26px 60px rgba(23,20,38,.22),0 3px 10px rgba(23,20,38,.12);
@@ -1206,41 +1207,64 @@ button.finder-row.is-ready[aria-pressed="true"] .fr-main b{color:var(--accent)}
   border-radius:6px;padding:2px 9px;
 }
 
-.mini-body{padding:14px 15px 16px}
+.mini-body{padding:15px 16px 17px}
 .mini-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px}
-.mini-head b{display:block;font-family:var(--font-display),sans-serif;font-size:15px;letter-spacing:-.01em}
+.mini-head b{display:block;font-family:var(--font-display),sans-serif;font-size:15px;letter-spacing:-.015em}
 .mini-head span{display:block;font-size:10.5px;color:var(--muted);margin-top:3px}
 .mini-cov{text-align:right;flex:none}
-.mini-cov b{font-family:var(--font-display),sans-serif;font-size:22px;color:var(--accent);letter-spacing:-.02em}
+.mini-cov b{font-family:var(--font-display),sans-serif;font-size:23px;color:var(--accent);letter-spacing:-.02em;line-height:1.1}
 .mini-cov span{font-size:9.5px;color:var(--muted)}
 
 .mini-meter{display:flex;height:8px;border-radius:99px;overflow:hidden;background:var(--track-bg);margin-top:12px}
-.mini-meter .ms{display:block;height:100%}
+/* ขยายจากซ้ายตอนโหลด — transform ไม่ใช่ width เพราะ keyframes ไม่รู้ค่าปลายทาง */
+.mini-meter .ms{display:block;height:100%;transform-origin:left center;animation:msGrow .7s cubic-bezier(.3,.9,.3,1) both}
 .ms-done{background:var(--spark)}
 .ms-now{background:var(--spark-2)}
 .ms-next{background:var(--accent)}
 .ms-out{background:var(--warn)}
 .ms-rest{background:var(--rule-hover)}
 
-.mini-rows{list-style:none;margin:14px 0 0;padding:0;display:flex;flex-direction:column;gap:2px}
-.mini-rows li{
-  display:flex;align-items:flex-start;gap:9px;padding:8px 0;border-top:1px solid var(--rule);font-size:12px;
+/* ---------- เส้นทางเป็นช่วง ๆ (รูปทรงเดียวกับหน้าแผนจริง) ---------- */
+.mini-route{list-style:none;margin:16px 0 0;padding:0;position:relative}
+.mr-step{
+  position:relative;padding:0 0 13px 22px;
+  animation:artRise .5s cubic-bezier(.22,.85,.28,1) both;
 }
-.mini-rows li:first-child{border-top:0}
-.mk{width:8px;height:8px;border-radius:50%;flex:none;margin-top:4px}
-.mk-done{background:var(--spark)}
-.mk-next{background:transparent;border:1.5px solid var(--accent)}
-.mr-name{flex:1;min-width:0;line-height:1.45}
-.mr-name em{display:block;font-style:normal;font-size:10.5px;color:var(--muted);margin-top:2px}
-.mr-meta{flex:none;font-size:10.5px;color:var(--muted);white-space:nowrap}
+.mr-step:last-child{padding-bottom:0}
+/* รางแนวตั้งเชื่อมแต่ละช่วง — หยุดที่จุดสุดท้าย ไม่ลากเลยออกไป */
+.mr-step::before{
+  content:"";position:absolute;left:5px;top:12px;bottom:0;width:1.5px;background:var(--rule);
+}
+.mr-step:last-child::before{display:none}
+.mr-node{
+  position:absolute;left:0;top:4px;width:12px;height:12px;border-radius:50%;
+  background:var(--card);box-sizing:border-box;
+}
+.mr-done .mr-node{background:var(--spark)}
+.mr-now .mr-node{background:var(--spark-2)}
+.mr-next .mr-node{border:2px solid var(--accent)}
+.mr-top{display:flex;align-items:baseline;justify-content:space-between;gap:10px}
+.mr-top b{font-size:12.5px;font-weight:600;line-height:1.4}
+.mr-pct{font-size:10px;color:var(--muted);white-space:nowrap}
+.mr-chip{
+  display:flex;align-items:center;gap:8px;margin-top:6px;
+  background:var(--surface-2);border:1px solid var(--rule);border-radius:8px;padding:6px 10px;
+  font-size:11px;color:var(--ink-soft);
+}
+.mr-chip em{font-style:normal;font-weight:600;color:var(--accent);flex:none}
+.mr-chip span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 
-/* การ์ดที่บอกแก่นของผลิตภัณฑ์: คำเดียวกัน สองฝั่งเขียนคนละอย่าง */
-.gapcard{
-  position:absolute;left:-14px;bottom:0;z-index:2;
-  display:flex;align-items:center;gap:14px;
-  background:var(--card);border:1px solid var(--rule);border-radius:14px;padding:12px 16px;
-  box-shadow:var(--shadow-lg);
+/* ---------- การ์ดลอย ---------- */
+.float{position:absolute;z-index:2;animation:cardIn .55s cubic-bezier(.22,.85,.28,1) both}
+/* ชั้นในลอยขึ้นลงเบา ๆ แยกจากชั้นนอกที่ทำแอนิเมชันตอนเข้า
+   ไม่งั้นสอง animation จะแย่ง transform กันเอง */
+.floatcard{
+  background:var(--card);border:1px solid var(--rule);border-radius:14px;
+  box-shadow:var(--shadow-lg);animation:drift 7s ease-in-out infinite;
 }
+
+.float-gap{left:-16px;bottom:0;animation-delay:1.05s}
+.gapcard{display:flex;align-items:center;gap:14px;padding:12px 16px}
 .gc-side{min-width:0}
 .gc-lbl{
   display:block;font-family:var(--font-mono),var(--font-body),monospace;font-size:8.5px;letter-spacing:.08em;
@@ -1252,14 +1276,43 @@ button.finder-row.is-ready[aria-pressed="true"] .fr-main b{color:var(--accent)}
   display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;
 }
 
-@media(max-width:1040px){
-  .heroin{grid-template-columns:1fr;gap:40px}
-  /* บนจอแคบ ภาพอยู่ใต้ข้อความ — จำกัดความกว้างไม่ให้จอโน้ตบุ๊กใหญ่เกินตัวหนังสือ */
-  .heroart{max-width:500px}
+.float-next{right:-18px;top:6px;animation-delay:1.2s}
+.nextcard{display:flex;align-items:center;gap:11px;padding:11px 15px;animation-delay:.9s}
+.nc-gain{
+  font-family:var(--font-display),sans-serif;font-weight:700;font-size:17px;letter-spacing:-.02em;
+  color:var(--spark);flex:none;
 }
-@media(max-width:560px){
-  .gapcard{position:static;margin-top:18px;left:auto;bottom:auto;justify-content:space-between}
-  .heroart{padding-bottom:0}
+.nc-txt{font-size:11.5px;color:var(--ink-soft);line-height:1.4}
+.nc-txt b{color:var(--accent);font-weight:600}
+
+/* วางแนวฐานเครื่อง ไม่ใช่ทับกลางจอ — ตอนอยู่บนจอมันบังตัวเลข "ถึงตรงนี้ 94%" */
+.float-honest{right:-14px;bottom:2px;animation-delay:1.35s}
+.honestcard{display:flex;align-items:center;gap:9px;padding:9px 14px;font-size:11px;color:var(--ink-soft);animation-delay:1.8s}
+.hc-dot{
+  flex:none;width:8px;height:8px;border-radius:50%;background:var(--warn);
+  box-shadow:0 0 0 3px var(--warn-soft);
+}
+
+/* ---------- แอนิเมชัน ---------- */
+@keyframes artRise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+@keyframes msGrow{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+@keyframes cardIn{from{opacity:0;transform:translateY(10px) scale(.97)}to{opacity:1;transform:none}}
+@keyframes drift{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+
+@media(max-width:1040px){
+  .heroin{grid-template-columns:1fr;gap:44px}
+  /* บนจอแคบ ภาพอยู่ใต้ข้อความ — จำกัดความกว้างไม่ให้จอโน้ตบุ๊กใหญ่เกินตัวหนังสือ */
+  .heroart{max-width:510px}
+}
+@media(max-width:620px){
+  /* พื้นที่ไม่พอให้การ์ดลอยทับจอ — วางเรียงใต้เครื่องแทน อ่านง่ายกว่าเบียดกัน */
+  .heroart{padding:0;display:flex;flex-direction:column;gap:10px}
+  .float{position:static;animation-delay:0s!important}
+  .floatcard{animation:none}
+  .float-gap{order:1}
+  .float-next{order:2}
+  .float-honest{order:3}
+  .gapcard{justify-content:space-between}
   .mini-head b{font-size:14px}
-  .mini-cov b{font-size:19px}
+  .mini-cov b{font-size:20px}
 }
